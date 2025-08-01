@@ -1,97 +1,121 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Audio Topics App
 
-# Getting Started
+A React Native mobile application that provides users with an audio-focused experience for listening to categorized topics. The app features a clean interface with beautiful background imagery, organized topic categories, and a robust audio playback system.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## Project Structure
 
-## Step 1: Start Metro
+```
+src/
+├── components/          # Reusable UI components
+│   ├── audio/          # Audio player components
+│   ├── category/       # Category-related components
+│   ├── common/         # Common/shared components
+│   └── topic/          # Topic-related components
+├── screens/            # Screen components
+├── services/           # Business logic services
+├── store/              # Redux store configuration
+├── types/              # TypeScript type definitions
+├── utils/              # Utility functions
+├── hooks/              # Custom React hooks
+└── constants/          # App constants
+```
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## Features
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+- **Category-based Content Organization**: Browse audio topics by category
+- **Professional Audio Controls**: Full-featured audio player with background playback
+- **Beautiful UI**: Attractive background images with proper contrast
+- **Progress Tracking**: Remember listening progress and resume functionality
+- **Offline Support**: Audio caching for offline playback
+- **Cross-platform**: Works on both iOS and Android
 
-```sh
-# Using npm
+## Tech Stack
+
+- **Framework**: React Native with TypeScript
+- **Audio Engine**: react-native-track-player
+- **State Management**: Redux Toolkit
+- **Navigation**: React Navigation 6
+- **Storage**: AsyncStorage
+- **Image Handling**: react-native-fast-image
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (>=18)
+- React Native development environment
+- Android Studio (for Android development)
+- Xcode (for iOS development)
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. For iOS, install CocoaPods dependencies:
+   ```bash
+   cd ios && pod install && cd ..
+   ```
+
+### Running the App
+
+#### Start Metro Bundler
+```bash
 npm start
-
-# OR using Yarn
-yarn start
 ```
 
-## Step 2: Build and run your app
-
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
+#### Run on Android
+```bash
 npm run android
-
-# OR using Yarn
-yarn android
 ```
 
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
+#### Run on iOS
+```bash
 npm run ios
-
-# OR using Yarn
-yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+## Development Scripts
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+- `npm start` - Start Metro bundler
+- `npm run android` - Run on Android
+- `npm run ios` - Run on iOS
+- `npm run lint` - Run ESLint
+- `npm run lint:fix` - Fix ESLint issues
+- `npm run format` - Format code with Prettier
+- `npm run format:check` - Check code formatting
+- `npm test` - Run tests
+- `npm run test:watch` - Run tests in watch mode
+- `npm run test:coverage` - Run tests with coverage
+- `npm run type-check` - Run TypeScript type checking
 
-## Step 3: Modify your app
+## Development Tools
 
-Now that you have successfully run the app, let's make changes!
+- **ESLint**: Code linting with React Native specific rules
+- **Prettier**: Code formatting
+- **TypeScript**: Type safety and better development experience
+- **Jest**: Testing framework
+- **VS Code**: Recommended editor with debugging configuration
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+## Architecture
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+The app follows a modular architecture with clear separation of concerns:
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+- **Components**: Reusable UI components organized by feature
+- **Screens**: Top-level screen components
+- **Services**: Business logic and external API interactions
+- **Store**: Redux state management
+- **Utils**: Helper functions and utilities
 
-## Congratulations! :tada:
+## Contributing
 
-You've successfully run and modified your React Native App. :partying_face:
+1. Follow the established code style (ESLint + Prettier)
+2. Write tests for new features
+3. Update documentation as needed
+4. Use TypeScript for type safety
 
-### Now what?
+## License
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+This project is private and proprietary.

@@ -1,21 +1,23 @@
 /**
- * Sample React Native App
- * https://github.com/facebook/react-native
+ * Audio Topics App
+ * Main application entry point
  *
  * @format
  */
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import React from 'react';
+import { Provider } from 'react-redux';
+import { View, Text, StyleSheet } from 'react-native';
+import store from './src/store';
+import CategoryScreen from './src/screens/CategoryScreen';
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
-
+function App(): React.JSX.Element {
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <NewAppScreen templateFileName="App.tsx" />
-    </View>
+    <Provider store={store}>
+      <View style={styles.container}>
+        <CategoryScreen />
+      </View>
+    </Provider>
   );
 }
 

@@ -30,10 +30,10 @@ class TopicService {
         title: 'The Future of Artificial Intelligence',
         description: 'Exploring how AI will transform our daily lives and work in the coming decades.',
         categoryId: '1',
-        audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+        audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3',
         duration: 1800, // 30 minutes
         author: 'Dr. Sarah Chen',
-        publishDate: new Date('2024-01-15'),
+        publishDate: '2024-01-15T00:00:00.000Z',
         thumbnailUrl: 'https://via.placeholder.com/300x200/4A90E2/FFFFFF?text=AI+Future',
         metadata: {
           bitrate: 128,
@@ -46,10 +46,10 @@ class TopicService {
         title: 'Quantum Computing Explained',
         description: 'A beginner-friendly introduction to quantum computing and its potential applications.',
         categoryId: '1',
-        audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+        audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-assets/Epoq-Lepidoptera.ogg',
         duration: 2100, // 35 minutes
         author: 'Prof. Michael Rodriguez',
-        publishDate: new Date('2024-01-10'),
+        publishDate: '2024-01-10T00:00:00.000Z',
         thumbnailUrl: 'https://via.placeholder.com/300x200/4A90E2/FFFFFF?text=Quantum',
         metadata: {
           bitrate: 128,
@@ -62,10 +62,10 @@ class TopicService {
         title: 'Blockchain Beyond Cryptocurrency',
         description: 'Discovering practical applications of blockchain technology in various industries.',
         categoryId: '1',
-        audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+        audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-assets/Epoq-Lepidoptera.ogg',
         duration: 1650, // 27.5 minutes
         author: 'Alex Thompson',
-        publishDate: new Date('2024-01-05'),
+        publishDate: '2024-01-05T00:00:00.000Z',
         thumbnailUrl: 'https://via.placeholder.com/300x200/4A90E2/FFFFFF?text=Blockchain',
         metadata: {
           bitrate: 128,
@@ -79,10 +79,10 @@ class TopicService {
         title: 'The Mysteries of Dark Matter',
         description: 'Investigating one of the universe\'s greatest unsolved mysteries.',
         categoryId: '2',
-        audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
+        audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3',
         duration: 2400, // 40 minutes
         author: 'Dr. Emily Watson',
-        publishDate: new Date('2024-01-20'),
+        publishDate: '2024-01-20T00:00:00.000Z',
         thumbnailUrl: 'https://via.placeholder.com/300x200/50C878/FFFFFF?text=Dark+Matter',
         metadata: {
           bitrate: 128,
@@ -95,10 +95,10 @@ class TopicService {
         title: 'Climate Change Solutions',
         description: 'Exploring innovative approaches to combat climate change.',
         categoryId: '2',
-        audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
+        audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-assets/Epoq-Lepidoptera.ogg',
         duration: 1950, // 32.5 minutes
         author: 'Dr. James Green',
-        publishDate: new Date('2024-01-18'),
+        publishDate: '2024-01-18T00:00:00.000Z',
         thumbnailUrl: 'https://via.placeholder.com/300x200/50C878/FFFFFF?text=Climate',
         metadata: {
           bitrate: 128,
@@ -112,10 +112,10 @@ class TopicService {
         title: 'Ancient Civilizations: Lost Cities',
         description: 'Uncovering the secrets of ancient cities that time forgot.',
         categoryId: '3',
-        audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
+        audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3',
         duration: 2700, // 45 minutes
         author: 'Prof. Maria Santos',
-        publishDate: new Date('2024-01-12'),
+        publishDate: '2024-01-12T00:00:00.000Z',
         thumbnailUrl: 'https://via.placeholder.com/300x200/D2691E/FFFFFF?text=Ancient',
         metadata: {
           bitrate: 128,
@@ -128,10 +128,10 @@ class TopicService {
         title: 'World War II: Untold Stories',
         description: 'Personal accounts and lesser-known events from World War II.',
         categoryId: '3',
-        audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3',
+        audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-assets/Epoq-Lepidoptera.ogg',
         duration: 3000, // 50 minutes
         author: 'Dr. Robert Miller',
-        publishDate: new Date('2024-01-08'),
+        publishDate: '2024-01-08T00:00:00.000Z',
         thumbnailUrl: 'https://via.placeholder.com/300x200/D2691E/FFFFFF?text=WWII',
         metadata: {
           bitrate: 128,
@@ -145,10 +145,10 @@ class TopicService {
         title: 'Renaissance Masters',
         description: 'The lives and works of Leonardo da Vinci, Michelangelo, and Raphael.',
         categoryId: '4',
-        audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
+        audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3',
         duration: 2250, // 37.5 minutes
         author: 'Dr. Isabella Romano',
-        publishDate: new Date('2024-01-14'),
+        publishDate: '2024-01-14T00:00:00.000Z',
         thumbnailUrl: 'https://via.placeholder.com/300x200/9370DB/FFFFFF?text=Renaissance',
         metadata: {
           bitrate: 128,
@@ -162,10 +162,10 @@ class TopicService {
         title: 'Startup Success Stories',
         description: 'How today\'s tech giants started from humble beginnings.',
         categoryId: '5',
-        audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3',
+        audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-assets/Epoq-Lepidoptera.ogg',
         duration: 1800, // 30 minutes
         author: 'Jennifer Lee',
-        publishDate: new Date('2024-01-16'),
+        publishDate: '2024-01-16T00:00:00.000Z',
         thumbnailUrl: 'https://via.placeholder.com/300x200/FF6347/FFFFFF?text=Startups',
         metadata: {
           bitrate: 128,
@@ -178,10 +178,10 @@ class TopicService {
         title: 'Leadership in the Digital Age',
         description: 'Modern leadership strategies for the digital transformation era.',
         categoryId: '5',
-        audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3',
+        audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3',
         duration: 2100, // 35 minutes
         author: 'David Park',
-        publishDate: new Date('2024-01-11'),
+        publishDate: '2024-01-11T00:00:00.000Z',
         thumbnailUrl: 'https://via.placeholder.com/300x200/FF6347/FFFFFF?text=Leadership',
         metadata: {
           bitrate: 128,
@@ -195,10 +195,10 @@ class TopicService {
         title: 'Mindfulness and Mental Health',
         description: 'Practical techniques for managing stress and improving mental well-being.',
         categoryId: '6',
-        audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3',
+        audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-assets/Epoq-Lepidoptera.ogg',
         duration: 1500, // 25 minutes
         author: 'Dr. Lisa Chang',
-        publishDate: new Date('2024-01-19'),
+        publishDate: '2024-01-19T00:00:00.000Z',
         thumbnailUrl: 'https://via.placeholder.com/300x200/32CD32/FFFFFF?text=Mindfulness',
         metadata: {
           bitrate: 128,
@@ -211,10 +211,10 @@ class TopicService {
         title: 'Nutrition Science Simplified',
         description: 'Evidence-based nutrition advice for optimal health.',
         categoryId: '6',
-        audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3',
+        audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3',
         duration: 1800, // 30 minutes
         author: 'Dr. Mark Johnson',
-        publishDate: new Date('2024-01-13'),
+        publishDate: '2024-01-13T00:00:00.000Z',
         thumbnailUrl: 'https://via.placeholder.com/300x200/32CD32/FFFFFF?text=Nutrition',
         metadata: {
           bitrate: 128,

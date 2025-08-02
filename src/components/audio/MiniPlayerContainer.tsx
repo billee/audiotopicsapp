@@ -4,7 +4,6 @@
 
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
 import MiniPlayer from './MiniPlayer';
 import { useAudioPlayer } from '../../hooks/useAudioPlayer';
 import { useMiniPlayer } from '../../hooks/useMiniPlayer';
@@ -24,7 +23,6 @@ interface MiniPlayerContainerProps {
 const MiniPlayerContainer: React.FC<MiniPlayerContainerProps> = ({
   onNavigateToPlayer,
 }) => {
-  const navigation = useNavigation();
   
   // Audio state from Redux
   const currentTopic = useSelector(selectCurrentTopic);
@@ -52,9 +50,8 @@ const MiniPlayerContainer: React.FC<MiniPlayerContainerProps> = ({
     if (onNavigateToPlayer) {
       onNavigateToPlayer();
     } else {
-      // Default navigation to audio player screen
-      // This assumes you have an AudioPlayer screen in your navigation
-      navigation.navigate('AudioPlayer' as never);
+      // No default navigation in simplified setup
+      console.log('Mini player expand pressed - no navigation handler provided');
     }
   };
 

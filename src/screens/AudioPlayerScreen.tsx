@@ -2,7 +2,7 @@
  * Main audio player screen with full-screen layout
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -11,17 +11,23 @@ import {
   SafeAreaView,
   ViewStyle,
   Alert,
+  TouchableOpacity,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import { useAudioPlayer } from '../hooks';
+import { useProgress } from '../hooks/useProgress';
+import { useResponsiveStyles, useLayoutConfig } from '../hooks/useOrientation';
 import {
   AudioControls,
   ProgressBar,
   VolumeControl,
   TopicInfo,
+  ResumeDialog,
 } from '../components/audio';
 import { LoadingSpinner, ErrorMessage } from '../components/common';
 import { AudioTopic } from '../types';
+import { getResponsivePadding, scaleFontSize } from '../utils/responsive';
 
 // Navigation types (these should be defined in a navigation types file)
 interface AudioPlayerScreenProps {
@@ -46,7 +52,7 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
     audioUrl: 'https://example.com/audio.mp3',
     duration: 300,
     author: 'Sample Author',
-    publishDate: new Date(),
+    publishDate: new Date().toISOString(), // Convert to ISO string for serialization
     thumbnailUrl: 'https://picsum.photos/400/400',
     metadata: {
       bitrate: 128,
@@ -56,6 +62,11 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
   };
   
   const { topic = mockTopic, playlist = [] } = route?.params || {};
+  const [hasCheckedResume, setHasCheckedResume] = useState(false);
+
+  // Responsive design hooks
+  const { isLandscape, isTablet, getResponsiveStyle } = useResponsiveStyles();
+  const { audioPlayer } = useLayoutConfig();
 
   const {
     currentTopic,
@@ -81,12 +92,61 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
     skipBackward,
   } = useAudioPlayer();
 
-  // Load the topic when the screen mounts
+  const {
+    resumeDialog,
+    startTracking,
+    stopTracking,
+    updateTopicProgress,
+    markCompleted,
+    checkForResumeDialog,
+    showResume,
+    hideResume,
+    getTopicProgress,
+    isTopicCompleted,
+    getProgressPercentage,
+  } = useProgress();
+
+  // Check for resume dialog when topic changes
   useEffect(() => {
-    if (topic) {
-      loadTopic(topic);
+    const checkResume = async () => {
+      if (topic && !hasCheckedResume) {
+        const { shouldShow, resumePosition } = await checkForResumeDialog(topic.id);
+        
+        if (shouldShow) {
+          showResume(topic.id, resumePosition);
+        } else {
+          // Load topic normally if no resume needed
+          loadTopic(topic);
+          startTracking(topic);
+        }
+        
+        setHasCheckedResume(true);
+      }
+    };
+
+    checkResume();
+  }, [topic, hasCheckedResume, checkForResumeDialog, showResume, loadTopic, startTracking]);
+
+  // Update progress during playback
+  useEffect(() => {
+    if (currentTopic && isPlaying && currentPosition > 0) {
+      updateTopicProgress(currentTopic.id, currentPosition);
     }
-  }, [topic, loadTopic]);
+  }, [currentTopic, isPlaying, currentPosition, updateTopicProgress]);
+
+  // Mark as completed when playback finishes
+  useEffect(() => {
+    if (currentTopic && duration > 0 && currentPosition >= duration * 0.95) {
+      markCompleted(currentTopic.id);
+    }
+  }, [currentTopic, currentPosition, duration, markCompleted]);
+
+  // Stop tracking when component unmounts
+  useEffect(() => {
+    return () => {
+      stopTracking();
+    };
+  }, [stopTracking]);
 
   // Handle errors
   useEffect(() => {
@@ -121,6 +181,31 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
     setVolumeLevel(newVolume);
   };
 
+  // Resume dialog handlers
+  const handleResumeFromPosition = async () => {
+    hideResume();
+    if (topic) {
+      await loadTopic(topic);
+      await startTracking(topic);
+      if (resumeDialog.resumePosition > 0) {
+        seekTo(resumeDialog.resumePosition);
+      }
+    }
+  };
+
+  const handleStartOver = async () => {
+    hideResume();
+    if (topic) {
+      await loadTopic(topic);
+      await startTracking(topic);
+    }
+  };
+
+  const handleCancelResume = () => {
+    hideResume();
+    navigation?.goBack();
+  };
+
   const backgroundImage = currentTopic?.thumbnailUrl || topic?.thumbnailUrl;
 
   return (
@@ -143,6 +228,16 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
           {renderContent()}
         </View>
       )}
+
+      {/* Resume Dialog */}
+      <ResumeDialog
+        visible={resumeDialog.visible}
+        topic={topic}
+        resumePosition={resumeDialog.resumePosition}
+        onResume={handleResumeFromPosition}
+        onStartOver={handleStartOver}
+        onCancel={handleCancelResume}
+      />
     </SafeAreaView>
   );
 
@@ -167,54 +262,127 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
     }
 
     return (
-      <View style={styles.content}>
-        {/* Topic Information */}
-        <View style={styles.topicInfoContainer}>
-          <TopicInfo
-            topic={currentTopic || topic}
-            layout="full"
-          />
+      <View style={[
+        styles.content,
+        getResponsiveStyle(styles.contentPortrait, styles.contentLandscape)
+      ]}>
+        {/* Back Button */}
+        <View style={[
+          styles.headerContainer,
+          getResponsiveStyle(styles.headerPortrait, styles.headerLandscape)
+        ]}>
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={() => navigation?.goBack()}
+            testID="back-button"
+          >
+            <Icon name="arrow-back" size={isLandscape ? 20 : 24} color="#FFFFFF" />
+          </TouchableOpacity>
         </View>
 
-        {/* Progress Bar */}
-        <View style={styles.progressContainer}>
-          <ProgressBar
-            currentTime={currentPosition}
-            duration={duration}
-            formattedCurrentTime={formattedCurrentTime}
-            formattedDuration={formattedDuration}
-            onSeek={handleSeek}
-            showTimeLabels={true}
+        {isLandscape && !isTablet ? (
+          // Landscape layout for phones - horizontal arrangement
+          <View style={styles.landscapeContent}>
+            <View style={styles.landscapeLeft}>
+              {/* Topic Information */}
+              <View style={[styles.topicInfoContainer, { flex: audioPlayer.topicInfoFlex }]}>
+                <TopicInfo
+                  topic={currentTopic || topic}
+                  layout={audioPlayer.compactLayout ? "compact" : "full"}
+                />
+              </View>
+            </View>
+            
+            <View style={styles.landscapeRight}>
+              {/* Progress Bar */}
+              <View style={[styles.progressContainer, { paddingVertical: audioPlayer.controlsSpacing }]}>
+                <ProgressBar
+                  currentTime={currentPosition}
+                  duration={duration}
+                  formattedCurrentTime={formattedCurrentTime}
+                  formattedDuration={formattedDuration}
+                  onSeek={handleSeek}
+                  showTimeLabels={true}
+                />
+              </View>
 
-          />
-        </View>
+              {/* Audio Controls */}
+              <View style={[styles.controlsContainer, { paddingVertical: audioPlayer.controlsSpacing }]}>
+                <AudioControls
+                  isPlaying={isPlaying}
+                  canPlay={canPlay}
+                  hasNextTrack={hasNextTrack}
+                  hasPreviousTrack={hasPreviousTrack}
+                  onPlayPause={togglePlayback}
+                  onNext={skipNext}
+                  onPrevious={skipPrevious}
+                  onSkipForward={() => skipForward(15)}
+                  onSkipBackward={() => skipBackward(15)}
+                  size={audioPlayer.compactLayout ? "medium" : "large"}
+                />
+              </View>
 
-        {/* Audio Controls */}
-        <View style={styles.controlsContainer}>
-          <AudioControls
-            isPlaying={isPlaying}
-            canPlay={canPlay}
-            hasNextTrack={hasNextTrack}
-            hasPreviousTrack={hasPreviousTrack}
-            onPlayPause={togglePlayback}
-            onNext={skipNext}
-            onPrevious={skipPrevious}
-            onSkipForward={() => skipForward(15)}
-            onSkipBackward={() => skipBackward(15)}
-            size="large"
+              {/* Volume Control */}
+              {audioPlayer.showVolumeControl && (
+                <View style={styles.volumeContainer}>
+                  <VolumeControl
+                    volume={volume}
+                    onVolumeChange={handleVolumeChange}
+                    orientation="horizontal"
+                  />
+                </View>
+              )}
+            </View>
+          </View>
+        ) : (
+          // Portrait layout or tablet - vertical arrangement
+          <>
+            {/* Topic Information */}
+            <View style={[styles.topicInfoContainer, { flex: audioPlayer.topicInfoFlex }]}>
+              <TopicInfo
+                topic={currentTopic || topic}
+                layout="full"
+              />
+            </View>
 
-          />
-        </View>
+            {/* Progress Bar */}
+            <View style={[styles.progressContainer, { paddingVertical: audioPlayer.controlsSpacing }]}>
+              <ProgressBar
+                currentTime={currentPosition}
+                duration={duration}
+                formattedCurrentTime={formattedCurrentTime}
+                formattedDuration={formattedDuration}
+                onSeek={handleSeek}
+                showTimeLabels={true}
+              />
+            </View>
 
-        {/* Volume Control */}
-        <View style={styles.volumeContainer}>
-          <VolumeControl
-            volume={volume}
-            onVolumeChange={handleVolumeChange}
-            orientation="horizontal"
+            {/* Audio Controls */}
+            <View style={[styles.controlsContainer, { paddingVertical: audioPlayer.controlsSpacing }]}>
+              <AudioControls
+                isPlaying={isPlaying}
+                canPlay={canPlay}
+                hasNextTrack={hasNextTrack}
+                hasPreviousTrack={hasPreviousTrack}
+                onPlayPause={togglePlayback}
+                onNext={skipNext}
+                onPrevious={skipPrevious}
+                onSkipForward={() => skipForward(15)}
+                onSkipBackward={() => skipBackward(15)}
+                size="large"
+              />
+            </View>
 
-          />
-        </View>
+            {/* Volume Control */}
+            <View style={styles.volumeContainer}>
+              <VolumeControl
+                volume={volume}
+                onVolumeChange={handleVolumeChange}
+                orientation="horizontal"
+              />
+            </View>
+          </>
+        )}
       </View>
     );
   }
@@ -245,8 +413,42 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     justifyContent: 'space-between',
-    paddingTop: 20,
-    paddingBottom: 40,
+  } as ViewStyle,
+
+  contentPortrait: {
+    paddingTop: getResponsivePadding(20),
+    paddingBottom: getResponsivePadding(40),
+  } as ViewStyle,
+
+  contentLandscape: {
+    paddingTop: getResponsivePadding(10),
+    paddingBottom: getResponsivePadding(20),
+  } as ViewStyle,
+
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingHorizontal: getResponsivePadding(16),
+  } as ViewStyle,
+
+  headerPortrait: {
+    paddingTop: getResponsivePadding(10),
+    paddingBottom: getResponsivePadding(10),
+  } as ViewStyle,
+
+  headerLandscape: {
+    paddingTop: getResponsivePadding(5),
+    paddingBottom: getResponsivePadding(5),
+  } as ViewStyle,
+
+  backButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
   } as ViewStyle,
 
   centerContent: {
@@ -258,27 +460,46 @@ const styles = StyleSheet.create({
   topicInfoContainer: {
     flex: 1,
     justifyContent: 'center',
-    minHeight: 300,
+    minHeight: 200,
   } as ViewStyle,
 
   progressContainer: {
-    paddingVertical: 20,
+    paddingVertical: getResponsivePadding(20),
   } as ViewStyle,
 
   controlsContainer: {
-    paddingVertical: 20,
+    paddingVertical: getResponsivePadding(20),
   } as ViewStyle,
 
   volumeContainer: {
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: getResponsivePadding(10),
+  } as ViewStyle,
+
+  // Landscape-specific styles
+  landscapeContent: {
+    flex: 1,
+    flexDirection: 'row',
+    paddingHorizontal: getResponsivePadding(16),
+  } as ViewStyle,
+
+  landscapeLeft: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingRight: getResponsivePadding(16),
+  } as ViewStyle,
+
+  landscapeRight: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingLeft: getResponsivePadding(16),
   } as ViewStyle,
 
   errorMessage: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 12,
-    padding: 20,
-    margin: 20,
+    padding: getResponsivePadding(20),
+    margin: getResponsivePadding(20),
   } as ViewStyle,
 });
 

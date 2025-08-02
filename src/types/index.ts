@@ -7,7 +7,7 @@ export interface AudioTopic {
   audioUrl: string;
   duration: number;
   author?: string;
-  publishDate?: Date;
+  publishDate?: string; // Changed from Date to string for Redux serialization
   thumbnailUrl?: string;
   metadata: {
     bitrate: number;

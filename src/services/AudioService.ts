@@ -1,78 +1,6 @@
-// Temporarily disabled react-native-track-player due to build issues
-// import TrackPlayer, {
-//   Track,
-//   State,
-//   Event,
-//   AppKilledPlaybackBehavior,
-//   Capability,
-//   RepeatMode,
-//   IOSCategory,
-//   IOSCategoryMode,
-//   AndroidAudioContentType,
-//   AndroidAudioFocusMode,
-//   AndroidAudioUsage,
-// } from 'react-native-track-player';
-
-// Mock TrackPlayer for development
-const TrackPlayer = {
-  setupPlayer: async () => Promise.resolve(),
-  updateOptions: async () => Promise.resolve(),
-  addEventListener: () => ({ remove: () => {} }),
-  reset: async () => Promise.resolve(),
-  add: async () => Promise.resolve(),
-  play: async () => Promise.resolve(),
-  pause: async () => Promise.resolve(),
-  seekTo: async () => Promise.resolve(),
-  setVolume: async () => Promise.resolve(),
-  getPosition: async () => Promise.resolve(0),
-  getDuration: async () => Promise.resolve(100),
-  getState: async () => Promise.resolve('paused'),
-  getVolume: async () => Promise.resolve(1),
-  getRate: async () => Promise.resolve(1),
-  skipToNext: async () => Promise.resolve(),
-  skipToPrevious: async () => Promise.resolve(),
-  setRate: async () => Promise.resolve(),
-  stop: async () => Promise.resolve(),
-};
-
-// Mock enums
-const State = { Playing: 'playing', Paused: 'paused', Buffering: 'buffering', Loading: 'loading' };
-const Event = {
-  RemotePlay: 'remote-play',
-  RemotePause: 'remote-pause',
-  RemoteStop: 'remote-stop',
-  RemoteSeek: 'remote-seek',
-  RemoteNext: 'remote-next',
-  RemotePrevious: 'remote-previous',
-  RemoteDuck: 'remote-duck',
-};
-const Capability = {
-  Play: 'play',
-  Pause: 'pause',
-  SkipToNext: 'skip-to-next',
-  SkipToPrevious: 'skip-to-previous',
-  SeekTo: 'seek-to',
-  Stop: 'stop',
-};
-const AppKilledPlaybackBehavior = { ContinuePlayback: 'continue' };
-const IOSCategory = { Playback: 'playback' };
-const IOSCategoryMode = { SpokenAudio: 'spoken-audio' };
-const AndroidAudioContentType = { Speech: 'speech' };
-const AndroidAudioFocusMode = { Gain: 'gain' };
-const AndroidAudioUsage = { Media: 'media' };
-
-// Mock Track interface
-interface Track {
-  id: string;
-  url: string;
-  title: string;
-  artist: string;
-  description: string;
-  duration: number;
-  artwork?: string;
-}
-
+import Sound from 'react-native-sound';
 import { AudioTopic, PlaybackState } from '../types';
+import ProgressService from './ProgressService';
 
 export interface AudioServiceInterface {
   loadTrack(topic: AudioTopic): Promise<void>;
@@ -92,11 +20,20 @@ export interface AudioServiceInterface {
 }
 
 class AudioService implements AudioServiceInterface {
-  private isInitialized = false;
+  private sound: Sound | null = null;
   private currentTopic: AudioTopic | null = null;
-  private interruptionListeners: (() => void)[] = [];
+  private isInitialized = false;
+  private currentPosition = 0;
+  private duration = 0;
+  private volume = 1.0;
+  private playbackRate = 1.0;
+  private isPlaying = false;
+  private positionUpdateInterval: NodeJS.Timeout | null = null;
+  private progressService: ProgressService;
+  private onProgressUpdate?: (position: number) => void;
 
   constructor() {
+    this.progressService = new ProgressService();
     this.initialize();
   }
 
@@ -104,19 +41,8 @@ class AudioService implements AudioServiceInterface {
     if (this.isInitialized) return;
 
     try {
-      await TrackPlayer.setupPlayer({
-        // iOS Audio Session Configuration
-        iosCategory: IOSCategory.Playback,
-        iosCategoryMode: IOSCategoryMode.SpokenAudio,
-        
-        // Android Audio Configuration
-        androidAudioContentType: AndroidAudioContentType.Speech,
-        androidAudioFocusMode: AndroidAudioFocusMode.Gain,
-        androidAudioUsage: AndroidAudioUsage.Media,
-      });
-
-      await this.setupBackgroundMode();
-      this.handleAudioInterruptions();
+      // Enable playback in silence mode (iOS)
+      Sound.setCategory('Playback');
       this.isInitialized = true;
     } catch (error) {
       console.error('Failed to initialize AudioService:', error);
@@ -125,136 +51,100 @@ class AudioService implements AudioServiceInterface {
   }
 
   async setupBackgroundMode(): Promise<void> {
-    await TrackPlayer.updateOptions({
-      // Capabilities that will show up when the notification is posted
-      capabilities: [
-        Capability.Play,
-        Capability.Pause,
-        Capability.SkipToNext,
-        Capability.SkipToPrevious,
-        Capability.SeekTo,
-        Capability.Stop,
-      ],
-
-      // Capabilities that will show up when the notification is posted but the player is stopped
-      notificationCapabilities: [
-        Capability.Play,
-        Capability.Pause,
-      ],
-
-      // Using default system icons for now
-      // Custom icons can be added later
-
-      // Whether the player should stop when the app is closed
-      android: {
-        appKilledPlaybackBehavior: AppKilledPlaybackBehavior.ContinuePlayback,
-      },
-    });
+    // react-native-sound doesn't have built-in background mode support
+    // This would require additional setup with background tasks
+    console.log('Background mode setup - requires additional configuration');
   }
 
   handleAudioInterruptions(): void {
-    // Handle remote control events (lock screen, notification controls)
-    const remotePlayListener = TrackPlayer.addEventListener(Event.RemotePlay, () => {
-      this.play();
-    });
-
-    const remotePauseListener = TrackPlayer.addEventListener(Event.RemotePause, () => {
-      this.pause();
-    });
-
-    const remoteStopListener = TrackPlayer.addEventListener(Event.RemoteStop, () => {
-      this.pause();
-    });
-
-    const remoteSeekListener = TrackPlayer.addEventListener(Event.RemoteSeek, (event) => {
-      this.seekTo(event.position);
-    });
-
-    const remoteNextListener = TrackPlayer.addEventListener(Event.RemoteNext, () => {
-      this.skipToNext();
-    });
-
-    const remotePreviousListener = TrackPlayer.addEventListener(Event.RemotePrevious, () => {
-      this.skipToPrevious();
-    });
-
-    // Handle audio focus changes (phone calls, other apps)
-    const audioFocusListener = TrackPlayer.addEventListener(Event.RemoteDuck, (event) => {
-      if (event.paused) {
-        // Audio focus lost, pause playback
-        this.pause();
-      } else {
-        // Audio focus regained, can resume if user wants
-        // Note: We don't auto-resume to give user control
-      }
-    });
-
-    // Store listeners for cleanup
-    this.interruptionListeners = [
-      remotePlayListener,
-      remotePauseListener,
-      remoteStopListener,
-      remoteSeekListener,
-      remoteNextListener,
-      remotePreviousListener,
-      audioFocusListener,
-    ];
+    // react-native-sound handles basic interruptions automatically
+    console.log('Audio interruption handling enabled');
   }
 
   async loadTrack(topic: AudioTopic): Promise<void> {
     await this.ensureInitialized();
 
-    const track: Track = {
-      id: topic.id,
-      url: topic.audioUrl,
-      title: topic.title,
-      artist: topic.author || 'Unknown Artist',
-      description: topic.description,
-      duration: topic.duration,
-      artwork: topic.thumbnailUrl,
-    };
+    return new Promise((resolve, reject) => {
+      // Release previous sound
+      if (this.sound) {
+        this.sound.release();
+        this.sound = null;
+      }
 
-    try {
-      await TrackPlayer.reset();
-      await TrackPlayer.add(track);
-      this.currentTopic = topic;
-    } catch (error) {
-      console.error('Failed to load track:', error);
-      throw new Error(`Failed to load audio track: ${topic.title}`);
-    }
+      // Create new sound instance
+      this.sound = new Sound(topic.audioUrl, '', (error) => {
+        if (error) {
+          console.error('Failed to load track:', error);
+          reject(new Error(`Failed to load audio track: ${topic.title}`));
+          return;
+        }
+
+        if (this.sound) {
+          this.currentTopic = topic;
+          this.duration = this.sound.getDuration();
+          this.currentPosition = 0;
+          
+          // Start progress tracking for the new topic
+          this.progressService.startProgressTracking(topic);
+          
+          resolve();
+        } else {
+          reject(new Error('Sound instance is null'));
+        }
+      });
+    });
   }
 
   async play(): Promise<void> {
     await this.ensureInitialized();
     
-    try {
-      await TrackPlayer.play();
-    } catch (error) {
-      console.error('Failed to play audio:', error);
-      throw new Error('Failed to start audio playback');
-    }
+    return new Promise((resolve, reject) => {
+      if (!this.sound) {
+        reject(new Error('No audio track loaded'));
+        return;
+      }
+
+      this.sound.play((success) => {
+        if (success) {
+          this.isPlaying = true;
+          this.startPositionUpdates();
+          resolve();
+        } else {
+          reject(new Error('Failed to start audio playback'));
+        }
+      });
+    });
   }
 
   async pause(): Promise<void> {
     await this.ensureInitialized();
     
-    try {
-      await TrackPlayer.pause();
-    } catch (error) {
-      console.error('Failed to pause audio:', error);
-      throw new Error('Failed to pause audio playback');
-    }
+    return new Promise((resolve) => {
+      if (!this.sound) {
+        resolve();
+        return;
+      }
+
+      this.sound.pause();
+      this.isPlaying = false;
+      this.stopPositionUpdates();
+      resolve();
+    });
   }
 
   async seekTo(position: number): Promise<void> {
     await this.ensureInitialized();
     
-    try {
-      await TrackPlayer.seekTo(position);
-    } catch (error) {
-      console.error('Failed to seek audio:', error);
-      throw new Error('Failed to seek to position');
-    }
+    return new Promise((resolve, reject) => {
+      if (!this.sound) {
+        reject(new Error('No audio track loaded'));
+        return;
+      }
+
+      this.sound.setCurrentTime(position);
+      this.currentPosition = position;
+      resolve();
+    });
   }
 
   async setVolume(volume: number): Promise<void> {
@@ -263,121 +153,138 @@ class AudioService implements AudioServiceInterface {
     // Ensure volume is between 0 and 1
     const normalizedVolume = Math.max(0, Math.min(1, volume));
     
-    try {
-      await TrackPlayer.setVolume(normalizedVolume);
-    } catch (error) {
-      console.error('Failed to set volume:', error);
-      throw new Error('Failed to set audio volume');
-    }
+    return new Promise((resolve) => {
+      if (this.sound) {
+        this.sound.setVolume(normalizedVolume);
+      }
+      this.volume = normalizedVolume;
+      resolve();
+    });
   }
 
   async getCurrentPosition(): Promise<number> {
     await this.ensureInitialized();
     
-    try {
-      return await TrackPlayer.getPosition();
-    } catch (error) {
-      console.error('Failed to get current position:', error);
-      return 0;
-    }
+    return new Promise((resolve) => {
+      if (!this.sound) {
+        resolve(0);
+        return;
+      }
+
+      this.sound.getCurrentTime((seconds) => {
+        this.currentPosition = seconds;
+        resolve(seconds);
+      });
+    });
   }
 
   async getDuration(): Promise<number> {
     await this.ensureInitialized();
     
-    try {
-      return await TrackPlayer.getDuration();
-    } catch (error) {
-      console.error('Failed to get duration:', error);
-      return 0;
-    }
+    return Promise.resolve(this.duration);
   }
 
   async getPlaybackState(): Promise<PlaybackState> {
     await this.ensureInitialized();
     
-    try {
-      const state = await TrackPlayer.getState();
-      const position = await this.getCurrentPosition();
-      const duration = await this.getDuration();
-      const volume = await TrackPlayer.getVolume();
-      const rate = await TrackPlayer.getRate();
+    const position = await this.getCurrentPosition();
 
-      return {
-        isPlaying: state === State.Playing,
-        currentTopic: this.currentTopic,
-        currentPosition: position,
-        duration: duration,
-        volume: volume,
-        playbackRate: rate,
-        isLoading: state === State.Buffering || state === State.Loading,
-        error: null,
-      };
-    } catch (error) {
-      console.error('Failed to get playback state:', error);
-      return {
-        isPlaying: false,
-        currentTopic: this.currentTopic,
-        currentPosition: 0,
-        duration: 0,
-        volume: 1,
-        playbackRate: 1,
-        isLoading: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
-    }
+    return {
+      isPlaying: this.isPlaying,
+      currentTopic: this.currentTopic,
+      currentPosition: position,
+      duration: this.duration,
+      volume: this.volume,
+      playbackRate: this.playbackRate,
+      isLoading: false,
+      error: null,
+    };
   }
 
   async skipToNext(): Promise<void> {
-    await this.ensureInitialized();
-    
-    try {
-      await TrackPlayer.skipToNext();
-    } catch (error) {
-      console.error('Failed to skip to next:', error);
-      throw new Error('Failed to skip to next track');
-    }
+    // This would require playlist management
+    console.log('Skip to next - requires playlist implementation');
   }
 
   async skipToPrevious(): Promise<void> {
-    await this.ensureInitialized();
-    
-    try {
-      await TrackPlayer.skipToPrevious();
-    } catch (error) {
-      console.error('Failed to skip to previous:', error);
-      throw new Error('Failed to skip to previous track');
-    }
+    // This would require playlist management
+    console.log('Skip to previous - requires playlist implementation');
   }
 
   async setPlaybackRate(rate: number): Promise<void> {
     await this.ensureInitialized();
     
-    // Ensure rate is within reasonable bounds
-    const normalizedRate = Math.max(0.25, Math.min(3.0, rate));
-    
-    try {
-      await TrackPlayer.setRate(normalizedRate);
-    } catch (error) {
-      console.error('Failed to set playback rate:', error);
-      throw new Error('Failed to set playback rate');
-    }
+    // react-native-sound doesn't support playback rate changes
+    // This would require a different audio library
+    console.log('Playback rate change not supported by react-native-sound');
+    this.playbackRate = rate;
   }
 
   async destroy(): Promise<void> {
     try {
-      // Remove all event listeners
-      this.interruptionListeners.forEach(listener => listener.remove());
-      this.interruptionListeners = [];
-
-      // Stop and reset the player
-      await TrackPlayer.stop();
-      await TrackPlayer.reset();
+      this.stopPositionUpdates();
+      
+      // Stop progress tracking
+      this.progressService.stopProgressTracking();
+      
+      if (this.sound) {
+        this.sound.release();
+        this.sound = null;
+      }
       
       this.currentTopic = null;
       this.isInitialized = false;
+      this.isPlaying = false;
     } catch (error) {
       console.error('Failed to destroy AudioService:', error);
+    }
+  }
+
+  /**
+   * Set progress update callback
+   */
+  setProgressUpdateCallback(callback: (position: number) => void): void {
+    this.onProgressUpdate = callback;
+  }
+
+  /**
+   * Get progress service instance
+   */
+  getProgressService(): ProgressService {
+    return this.progressService;
+  }
+
+  private startPositionUpdates(): void {
+    if (this.positionUpdateInterval) {
+      clearInterval(this.positionUpdateInterval);
+    }
+
+    this.positionUpdateInterval = setInterval(async () => {
+      if (this.isPlaying && this.sound) {
+        const position = await this.getCurrentPosition();
+        
+        // Update progress service with current position
+        if (this.currentTopic) {
+          await this.progressService.updateProgress(position);
+        }
+        
+        // Call external progress update callback if provided
+        if (this.onProgressUpdate) {
+          this.onProgressUpdate(position);
+        }
+        
+        // Check if topic should be marked as completed
+        if (this.currentTopic && position >= this.duration * 0.95) {
+          await this.progressService.markCompleted(this.currentTopic.id);
+        }
+      }
+    }, 1000);
+  }
+
+  private stopPositionUpdates(): void {
+    if (this.positionUpdateInterval) {
+      clearInterval(this.positionUpdateInterval);
+      this.positionUpdateInterval = null;
     }
   }
 

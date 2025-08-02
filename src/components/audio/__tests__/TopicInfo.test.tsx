@@ -15,7 +15,7 @@ const mockTopic: AudioTopic = {
   audioUrl: 'https://example.com/audio.mp3',
   duration: 300,
   author: 'Test Author',
-  publishDate: new Date('2023-01-01'),
+  publishDate: '2023-01-01T00:00:00.000Z',
   thumbnailUrl: 'https://example.com/thumbnail.jpg',
   metadata: {
     bitrate: 128,

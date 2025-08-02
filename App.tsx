@@ -1,21 +1,115 @@
 /**
  * Audio Topics App
- * Main application entry point
+ * Main application entry point - simplified for testing
  *
  * @format
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Provider } from 'react-redux';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import store from './src/store';
 import CategoryScreen from './src/screens/CategoryScreen';
+import TopicListScreen from './src/screens/TopicListScreen';
+import AudioPlayerScreen from './src/screens/AudioPlayerScreen';
+import MiniPlayerContainer from './src/components/audio/MiniPlayerContainer';
+import { AudioTopic, Category } from './src/types';
+
+// Simple navigation state management
+type Screen = 'Categories' | 'TopicList' | 'AudioPlayer';
+
+interface NavigationState {
+  currentScreen: Screen;
+  selectedCategory?: Category;
+  selectedTopic?: AudioTopic;
+}
 
 function App(): React.JSX.Element {
+  const [navState, setNavState] = useState<NavigationState>({
+    currentScreen: 'Categories',
+  });
+
+  // Simple navigation functions
+  const navigateToTopicList = (category: Category) => {
+    setNavState({
+      currentScreen: 'TopicList',
+      selectedCategory: category,
+    });
+  };
+
+  const navigateToAudioPlayer = (topic: AudioTopic) => {
+    setNavState({
+      ...navState,
+      currentScreen: 'AudioPlayer',
+      selectedTopic: topic,
+    });
+  };
+
+  const navigateBack = () => {
+    if (navState.currentScreen === 'AudioPlayer') {
+      setNavState({
+        ...navState,
+        currentScreen: 'TopicList',
+      });
+    } else if (navState.currentScreen === 'TopicList') {
+      setNavState({
+        currentScreen: 'Categories',
+      });
+    }
+  };
+
+  // Mock navigation object for screens
+  const mockNavigation = {
+    navigate: (screen: string, params?: any) => {
+      if (screen === 'TopicList') {
+        navigateToTopicList(params?.category);
+      } else if (screen === 'AudioPlayer') {
+        navigateToAudioPlayer(params?.topic);
+      }
+    },
+    goBack: navigateBack,
+  };
+
+  const renderCurrentScreen = () => {
+    switch (navState.currentScreen) {
+      case 'Categories':
+        return <CategoryScreen navigation={mockNavigation} />;
+      case 'TopicList':
+        return (
+          <TopicListScreen 
+            route={{ 
+              params: { 
+                categoryId: navState.selectedCategory?.id || '',
+                categoryName: navState.selectedCategory?.name || 'Topics'
+              } 
+            }}
+            navigation={mockNavigation}
+          />
+        );
+      case 'AudioPlayer':
+        return (
+          <AudioPlayerScreen 
+            route={{ 
+              params: { 
+                topic: navState.selectedTopic 
+              } 
+            }}
+            navigation={mockNavigation}
+          />
+        );
+      default:
+        return <CategoryScreen navigation={mockNavigation} />;
+    }
+  };
+
   return (
     <Provider store={store}>
       <View style={styles.container}>
-        <CategoryScreen />
+        {/* Current screen */}
+        {renderCurrentScreen()}
+
+        {/* Mini player overlay - hide when on audio player screen */}
+        {navState.currentScreen !== 'AudioPlayer' && <MiniPlayerContainer />}
       </View>
     </Provider>
   );
@@ -24,6 +118,7 @@ function App(): React.JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#000000',
   },
 });
 

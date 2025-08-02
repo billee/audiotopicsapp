@@ -5,3 +5,4 @@ export { default as VolumeControl } from './VolumeControl';
 export { default as TopicInfo } from './TopicInfo';
 export { default as MiniPlayer } from './MiniPlayer';
 export { default as MiniPlayerContainer } from './MiniPlayerContainer';
+export { default as ResumeDialog } from './ResumeDialog';

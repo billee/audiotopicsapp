@@ -10,27 +10,29 @@ import {
   StatusBar,
   ImageBackground,
 } from 'react-native';
-import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
 import { useTopics } from '../hooks/useTopics';
 import { useAppSelector } from '../store/hooks';
 import { selectCurrentTopic } from '../store/selectors/audioSelectors';
 import { selectCategoryById } from '../store/selectors/categoriesSelectors';
 import { TopicList } from '../components/topic';
 import { AudioTopic } from '../types';
+import { useResponsiveStyles } from '../hooks/useOrientation';
 
-// Navigation types
-type RootStackParamList = {
-  TopicList: { categoryId: string };
-  AudioPlayer: { topic: AudioTopic };
-};
+// Props interface for simplified navigation
+interface TopicListScreenProps {
+  route: {
+    params: {
+      categoryId: string;
+      categoryName?: string;
+    };
+  };
+  navigation: {
+    navigate: (screen: string, params?: any) => void;
+    goBack: () => void;
+  };
+}
 
-type TopicListScreenRouteProp = RouteProp<RootStackParamList, 'TopicList'>;
-type TopicListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'TopicList'>;
-
-const TopicListScreen: React.FC = () => {
-  const route = useRoute<TopicListScreenRouteProp>();
-  const navigation = useNavigation<TopicListScreenNavigationProp>();
+const TopicListScreen: React.FC<TopicListScreenProps> = ({ route, navigation }) => {
   const { categoryId } = route.params;
 
   // Hooks
@@ -43,6 +45,9 @@ const TopicListScreen: React.FC = () => {
     refreshTopics,
   } = useTopics(categoryId);
 
+  // Responsive design
+  const { isLandscape, isTablet } = useResponsiveStyles();
+
   // Selectors
   const currentTopic = useAppSelector(selectCurrentTopic);
   const category = useAppSelector(state => selectCategoryById(state, categoryId));
@@ -54,21 +59,21 @@ const TopicListScreen: React.FC = () => {
     }
   }, [categoryId, loadTopicsForCategory]);
 
-  // Set navigation title
-  useEffect(() => {
-    if (category) {
-      navigation.setOptions({
-        title: category.name,
-        headerStyle: {
-          backgroundColor: category.color || '#007AFF',
-        },
-        headerTintColor: '#FFFFFF',
-        headerTitleStyle: {
-          fontWeight: '600',
-        },
-      });
-    }
-  }, [navigation, category]);
+  // Set navigation title (disabled for simplified navigation)
+  // useEffect(() => {
+  //   if (category) {
+  //     navigation.setOptions({
+  //       title: category.name,
+  //       headerStyle: {
+  //         backgroundColor: category.color || '#007AFF',
+  //       },
+  //       headerTintColor: '#FFFFFF',
+  //       headerTitleStyle: {
+  //         fontWeight: '600',
+  //       },
+  //     });
+  //   }
+  // }, [navigation, category]);
 
   // Handle topic selection
   const handleTopicPress = useCallback(

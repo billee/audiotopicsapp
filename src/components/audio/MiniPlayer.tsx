@@ -286,5 +286,3 @@ const styles = StyleSheet.create({
 });
 
 export default MiniPlayer;
-</content>
-</invoke>

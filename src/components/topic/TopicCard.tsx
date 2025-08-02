@@ -13,6 +13,13 @@ import {
 } from 'react-native';
 import { AudioTopic, ProgressData } from '../../types';
 import { formatDuration } from '../../utils/formatters';
+import { useLayoutConfig, useResponsiveStyles } from '../../hooks/useOrientation';
+import { 
+  scaleFontSize, 
+  getResponsivePadding, 
+  getResponsiveBorderRadius,
+  getResponsiveMargin 
+} from '../../utils/responsive';
 
 interface TopicCardProps {
   topic: AudioTopic;
@@ -21,16 +28,14 @@ interface TopicCardProps {
   isPlaying?: boolean;
 }
 
-const { width } = Dimensions.get('window');
-const CARD_MARGIN = 16;
-const CARD_WIDTH = width - (CARD_MARGIN * 2);
-
 const TopicCard: React.FC<TopicCardProps> = ({
   topic,
   progress,
   onPress,
   isPlaying = false,
 }) => {
+  const { topicList } = useLayoutConfig();
+  const { isLandscape, isTablet } = useResponsiveStyles();
   const progressPercentage = progress 
     ? Math.min((progress.position / topic.duration) * 100, 100)
     : 0;
@@ -70,10 +75,20 @@ const TopicCard: React.FC<TopicCardProps> = ({
     return null;
   };
 
+  // Calculate responsive thumbnail size
+  const thumbnailSize = topicList.compactMode ? 60 : 80;
+  const showThumbnails = topicList.showThumbnails;
+
   return (
     <TouchableOpacity
       style={[
         styles.container,
+        { 
+          height: topicList.itemHeight,
+          padding: getResponsivePadding(16),
+          marginHorizontal: getResponsiveMargin(16),
+          marginVertical: getResponsiveMargin(8),
+        },
         isPlaying && styles.playingContainer,
         isCompleted && styles.completedContainer,
       ]}
@@ -81,39 +96,87 @@ const TopicCard: React.FC<TopicCardProps> = ({
       activeOpacity={0.7}
     >
       {/* Thumbnail */}
-      <View style={styles.thumbnailContainer}>
-        {topic.thumbnailUrl ? (
-          <Image
-            source={{ uri: topic.thumbnailUrl }}
-            style={styles.thumbnail}
-            resizeMode="cover"
-          />
-        ) : (
-          <View style={[styles.thumbnail, styles.placeholderThumbnail]}>
-            <Text style={styles.placeholderText}>♪</Text>
-          </View>
-        )}
-        {getStatusIndicator()}
-      </View>
+      {showThumbnails && (
+        <View style={[styles.thumbnailContainer, { marginRight: getResponsiveMargin(16) }]}>
+          {topic.thumbnailUrl ? (
+            <Image
+              source={{ uri: topic.thumbnailUrl }}
+              style={[
+                styles.thumbnail,
+                { 
+                  width: thumbnailSize, 
+                  height: thumbnailSize,
+                  borderRadius: getResponsiveBorderRadius(8),
+                }
+              ]}
+              resizeMode="cover"
+            />
+          ) : (
+            <View style={[
+              styles.thumbnail, 
+              styles.placeholderThumbnail,
+              { 
+                width: thumbnailSize, 
+                height: thumbnailSize,
+                borderRadius: getResponsiveBorderRadius(8),
+              }
+            ]}>
+              <Text style={[
+                styles.placeholderText,
+                { fontSize: scaleFontSize(topicList.compactMode ? 20 : 24) }
+              ]}>♪</Text>
+            </View>
+          )}
+          {getStatusIndicator()}
+        </View>
+      )}
 
       {/* Content */}
       <View style={styles.content}>
-        <Text style={styles.title} numberOfLines={2}>
+        <Text style={[
+          styles.title,
+          { 
+            fontSize: scaleFontSize(topicList.compactMode ? 14 : 16),
+            lineHeight: scaleFontSize(topicList.compactMode ? 14 : 16) * 1.25,
+            marginBottom: getResponsiveMargin(4),
+          }
+        ]} numberOfLines={topicList.compactMode ? 1 : 2}>
           {topic.title}
         </Text>
         
-        <Text style={styles.description} numberOfLines={2}>
-          {topic.description}
-        </Text>
+        {!topicList.compactMode && (
+          <Text style={[
+            styles.description,
+            { 
+              fontSize: scaleFontSize(14),
+              lineHeight: scaleFontSize(14) * 1.3,
+              marginBottom: getResponsiveMargin(8),
+            }
+          ]} numberOfLines={2}>
+            {topic.description}
+          </Text>
+        )}
         
-        <View style={styles.metadata}>
-          <Text style={styles.duration}>
+        <View style={[styles.metadata, { marginBottom: getResponsiveMargin(8) }]}>
+          <Text style={[
+            styles.duration,
+            { fontSize: scaleFontSize(12) }
+          ]}>
             {formatDuration(topic.duration)}
           </Text>
-          {topic.author && (
+          {topic.author && !topicList.compactMode && (
             <>
-              <Text style={styles.separator}>•</Text>
-              <Text style={styles.author} numberOfLines={1}>
+              <Text style={[
+                styles.separator,
+                { 
+                  fontSize: scaleFontSize(12),
+                  marginHorizontal: getResponsiveMargin(6),
+                }
+              ]}>•</Text>
+              <Text style={[
+                styles.author,
+                { fontSize: scaleFontSize(12) }
+              ]} numberOfLines={1}>
                 {topic.author}
               </Text>
             </>
@@ -123,7 +186,7 @@ const TopicCard: React.FC<TopicCardProps> = ({
         {/* Progress Bar */}
         {(isInProgress || isCompleted) && (
           <View style={styles.progressContainer}>
-            <View style={styles.progressTrack}>
+            <View style={[styles.progressTrack, { marginRight: getResponsiveMargin(8) }]}>
               <View 
                 style={[
                   styles.progressFill,
@@ -132,7 +195,10 @@ const TopicCard: React.FC<TopicCardProps> = ({
                 ]} 
               />
             </View>
-            <Text style={styles.progressText}>
+            <Text style={[
+              styles.progressText,
+              { fontSize: scaleFontSize(10) }
+            ]}>
               {isCompleted ? 'Completed' : `${Math.round(progressPercentage)}%`}
             </Text>
           </View>
@@ -146,10 +212,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
-    marginHorizontal: CARD_MARGIN,
-    marginVertical: 8,
+    borderRadius: getResponsiveBorderRadius(12),
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -169,12 +232,9 @@ const styles = StyleSheet.create({
   },
   thumbnailContainer: {
     position: 'relative',
-    marginRight: 16,
   },
   thumbnail: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
+    // width, height, and borderRadius will be set dynamically
   },
   placeholderThumbnail: {
     backgroundColor: '#E5E5E5',
@@ -182,7 +242,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   placeholderText: {
-    fontSize: 24,
     color: '#999',
   },
   statusIndicator: {
@@ -208,7 +267,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     color: '#FFFFFF',
-    fontSize: 12,
+    fontSize: scaleFontSize(12),
     fontWeight: 'bold',
   },
   content: {
@@ -216,35 +275,24 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   title: {
-    fontSize: 16,
     fontWeight: '600',
     color: '#1C1C1E',
-    marginBottom: 4,
-    lineHeight: 20,
   },
   description: {
-    fontSize: 14,
     color: '#6C6C70',
-    lineHeight: 18,
-    marginBottom: 8,
   },
   metadata: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
   },
   duration: {
-    fontSize: 12,
     color: '#007AFF',
     fontWeight: '500',
   },
   separator: {
-    fontSize: 12,
     color: '#C7C7CC',
-    marginHorizontal: 6,
   },
   author: {
-    fontSize: 12,
     color: '#8E8E93',
     flex: 1,
   },
@@ -257,7 +305,6 @@ const styles = StyleSheet.create({
     height: 4,
     backgroundColor: '#E5E5E5',
     borderRadius: 2,
-    marginRight: 8,
   },
   progressFill: {
     height: '100%',
@@ -268,7 +315,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#34C759',
   },
   progressText: {
-    fontSize: 10,
     color: '#8E8E93',
     fontWeight: '500',
     minWidth: 50,

@@ -14,6 +14,13 @@ import {
 import { AudioTopic, ProgressData } from '../../types';
 import TopicCard from './TopicCard';
 import { LoadingSpinner, ErrorMessage } from '../common';
+import { useLayoutConfig, useResponsiveStyles } from '../../hooks/useOrientation';
+import { 
+  scaleFontSize, 
+  getResponsivePadding, 
+  getResponsiveBorderRadius,
+  getResponsiveMargin 
+} from '../../utils/responsive';
 
 interface TopicWithProgress extends AudioTopic {
   progress?: ProgressData | null;
@@ -51,6 +58,8 @@ const TopicList: React.FC<TopicListProps> = ({
   showStats = false,
   stats,
 }) => {
+  const { topicList } = useLayoutConfig();
+  const { isLandscape, isTablet } = useResponsiveStyles();
   const renderTopic: ListRenderItem<TopicWithProgress> = useCallback(
     ({ item }) => (
       <TopicCard
@@ -125,11 +134,11 @@ const TopicList: React.FC<TopicListProps> = ({
 
   const getItemLayout = useCallback(
     (data: ArrayLike<TopicWithProgress> | null | undefined, index: number) => ({
-      length: 120, // Approximate height of TopicCard
-      offset: 120 * index,
+      length: topicList.itemHeight, // Responsive height of TopicCard
+      offset: topicList.itemHeight * index,
       index,
     }),
-    []
+    [topicList.itemHeight]
   );
 
   if (error) {
@@ -178,7 +187,7 @@ const TopicList: React.FC<TopicListProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 8,
+    paddingVertical: getResponsivePadding(8),
   },
   emptyListContainer: {
     flex: 1,
@@ -186,31 +195,31 @@ const styles = StyleSheet.create({
   },
   statsContainer: {
     backgroundColor: '#F8F9FA',
-    margin: 16,
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 8,
+    margin: getResponsiveMargin(16),
+    padding: getResponsivePadding(16),
+    borderRadius: getResponsiveBorderRadius(12),
+    marginBottom: getResponsiveMargin(8),
   },
   statsTitle: {
-    fontSize: 16,
+    fontSize: scaleFontSize(16),
     fontWeight: '600',
     color: '#1C1C1E',
-    marginBottom: 12,
+    marginBottom: getResponsiveMargin(12),
     textAlign: 'center',
   },
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: 16,
+    marginBottom: getResponsiveMargin(16),
   },
   statItem: {
     alignItems: 'center',
   },
   statNumber: {
-    fontSize: 20,
+    fontSize: scaleFontSize(20),
     fontWeight: 'bold',
     color: '#1C1C1E',
-    marginBottom: 4,
+    marginBottom: getResponsiveMargin(4),
   },
   completedNumber: {
     color: '#34C759',
@@ -219,7 +228,7 @@ const styles = StyleSheet.create({
     color: '#FF9500',
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: scaleFontSize(12),
     color: '#6C6C70',
     textAlign: 'center',
   },
@@ -231,7 +240,7 @@ const styles = StyleSheet.create({
     height: 8,
     backgroundColor: '#E5E5E5',
     borderRadius: 4,
-    marginBottom: 8,
+    marginBottom: getResponsiveMargin(8),
   },
   progressBarFill: {
     height: '100%',
@@ -239,7 +248,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   progressPercentage: {
-    fontSize: 14,
+    fontSize: scaleFontSize(14),
     fontWeight: '500',
     color: '#34C759',
   },
@@ -247,13 +256,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 32,
+    paddingHorizontal: getResponsivePadding(32),
   },
   emptyText: {
-    fontSize: 16,
+    fontSize: scaleFontSize(16),
     color: '#6C6C70',
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: scaleFontSize(16) * 1.5,
   },
 });
 

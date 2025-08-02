@@ -119,13 +119,17 @@ describe('MiniPlayer', () => {
     expect(onExpand).toHaveBeenCalledTimes(1);
   });
 
-  it('calls onClose when close button is pressed', () => {
+  it('calls onClose when close button is pressed', async () => {
     const onClose = jest.fn();
     const { getByTestId } = render(
       <MiniPlayer {...defaultProps} onClose={onClose} />
     );
 
     fireEvent.press(getByTestId('mini-player-close'));
+    
+    // Wait for animation to complete
+    await new Promise(resolve => setTimeout(resolve, 250));
+    
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 

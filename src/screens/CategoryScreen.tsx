@@ -8,9 +8,11 @@ import {
   StatusBar,
 } from 'react-native';
 import { useCategories } from '../hooks/useCategories';
+import { useResponsiveStyles } from '../hooks/useOrientation';
 import { CategoryGrid } from '../components/category';
 import { LoadingSpinner, ErrorMessage } from '../components/common';
 import { Category } from '../types';
+import { responsiveStyles, scaleFontSize } from '../utils/responsive';
 
 interface CategoryScreenProps {
   navigation?: any; // Navigation prop for React Navigation
@@ -29,6 +31,16 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
     isEmpty,
   } = useCategories();
 
+  // Responsive design hooks
+  const {
+    isLandscape,
+    isTablet,
+    safeAreaPadding,
+    contentPadding,
+    layoutConfig,
+    getResponsiveStyle,
+  } = useResponsiveStyles();
+
   // Handle category selection
   const handleCategorySelect = useCallback((category: Category) => {
     selectCategory(category.id);
@@ -36,6 +48,7 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
     // Navigate to TopicListScreen if navigation is available
     if (navigation) {
       navigation.navigate('TopicList', { 
+        category: category,
         categoryId: category.id,
         categoryName: category.name 
       });
@@ -131,9 +144,20 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
         imageStyle={styles.backgroundImageStyle}
       >
         <View style={styles.overlay}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Audio Topics</Text>
-            <Text style={styles.subtitle}>
+          <View style={[
+            styles.header,
+            getResponsiveStyle(styles.headerPortrait, styles.headerLandscape)
+          ]}>
+            <Text style={[
+              styles.title,
+              getResponsiveStyle(styles.titlePortrait, styles.titleLandscape)
+            ]}>
+              Audio Topics
+            </Text>
+            <Text style={[
+              styles.subtitle,
+              getResponsiveStyle(styles.subtitlePortrait, styles.subtitleLandscape)
+            ]}>
               Discover {categories.length} categories of engaging audio content
             </Text>
           </View>
@@ -172,18 +196,35 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 24,
   },
+  headerPortrait: {
+    paddingBottom: 32,
+  },
+  headerLandscape: {
+    paddingBottom: 16,
+    paddingTop: (StatusBar.currentHeight || 44) * 0.7,
+  },
   title: {
-    fontSize: 32,
     fontWeight: 'bold',
     color: '#FFFFFF',
     marginBottom: 8,
     textAlign: 'center',
   },
+  titlePortrait: {
+    fontSize: scaleFontSize(32),
+  },
+  titleLandscape: {
+    fontSize: scaleFontSize(28),
+  },
   subtitle: {
-    fontSize: 16,
     color: '#E0E0E0',
     textAlign: 'center',
     lineHeight: 22,
+  },
+  subtitlePortrait: {
+    fontSize: scaleFontSize(16),
+  },
+  subtitleLandscape: {
+    fontSize: scaleFontSize(14),
   },
   content: {
     flex: 1,
@@ -192,20 +233,20 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 32,
+    ...responsiveStyles.container(32),
   },
   emptyTitle: {
-    fontSize: 24,
+    fontSize: scaleFontSize(24),
     fontWeight: 'bold',
     color: '#FFFFFF',
     marginBottom: 16,
     textAlign: 'center',
   },
   emptyMessage: {
-    fontSize: 16,
+    fontSize: scaleFontSize(16),
     color: '#E0E0E0',
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: scaleFontSize(16) * 1.5,
   },
 });
 

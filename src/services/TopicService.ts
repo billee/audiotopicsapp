@@ -76,18 +76,18 @@ class TopicService {
       // Science topics
       {
         id: 'sci-1',
-        title: 'The Mysteries of Dark Matter',
-        description: 'Investigating one of the universe\'s greatest unsolved mysteries.',
+        title: 'Ang Krisis sa Klima',
+        description: 'Base sa Ehipto.',
         categoryId: '2',
-        audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3',
-        duration: 2400, // 40 minutes
-        author: 'Dr. Emily Watson',
+        audioUrl: 'https://raw.githubusercontent.com/billee/audiotopicsapp/main/android/app/src/main/assets/audio/ang_krisis_sa_klima_tugon_ng_ehipto.mp3',
+        duration: 360, // 6 minutes
+        author: 'Joe S',
         publishDate: '2024-01-20T00:00:00.000Z',
-        thumbnailUrl: 'https://via.placeholder.com/300x200/50C878/FFFFFF?text=Dark+Matter',
+        thumbnailUrl: 'https://via.placeholder.com/300x200/50C878/FFFFFF?text=Krisis+sa+Klima',
         metadata: {
           bitrate: 128,
-          format: 'mp3',
-          size: 38400000
+          format: 'wav',
+          size: 5760000 // Approximate size for 6 minutes of WAV audio
         }
       },
       {

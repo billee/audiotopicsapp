@@ -2,7 +2,7 @@
  * Audio progress bar with seek functionality
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
   StyleSheet,
   ViewStyle,
   TextStyle,
+  Dimensions,
+  PanResponder,
 } from 'react-native';
 
 interface ProgressBarProps {
@@ -51,17 +53,6 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
 
   return (
     <View style={[styles.container, style]}>
-      {showTimeLabels && (
-        <View style={styles.timeContainer}>
-          <Text style={styles.timeText} testID="current-time">
-            {formattedCurrentTime}
-          </Text>
-          <Text style={styles.timeText} testID="duration">
-            {formattedDuration}
-          </Text>
-        </View>
-      )}
-      
       <View style={styles.progressContainer}>
         <TouchableOpacity
           style={styles.progressBar}
@@ -88,6 +79,17 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
           />
         </TouchableOpacity>
       </View>
+      
+      {showTimeLabels && (
+        <View style={styles.timeContainer}>
+          <Text style={styles.timeText} testID="current-time">
+            {formattedCurrentTime}
+          </Text>
+          <Text style={styles.timeText} testID="duration">
+            {formattedDuration}
+          </Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -101,7 +103,7 @@ const styles = StyleSheet.create({
   timeContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    marginTop: 8,
   } as ViewStyle,
 
   timeText: {

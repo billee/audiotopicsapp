@@ -56,49 +56,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
 
   return (
     <View style={[styles.container, style]}>
-      {/* Skip Backward */}
-      <TouchableOpacity
-        style={[
-          styles.controlButton,
-          styles.secondaryButton,
-          {
-            width: currentButtonSize.secondary,
-            height: currentButtonSize.secondary,
-          },
-        ]}
-        onPress={onSkipBackward}
-        disabled={!canPlay}
-        testID="skip-backward-button"
-      >
-        <Icon
-          name="replay-15"
-          size={currentIconSize.secondary}
-          color={canPlay ? '#FFFFFF' : '#666666'}
-        />
-      </TouchableOpacity>
-
-      {/* Previous Track */}
-      <TouchableOpacity
-        style={[
-          styles.controlButton,
-          styles.secondaryButton,
-          {
-            width: currentButtonSize.secondary,
-            height: currentButtonSize.secondary,
-          },
-        ]}
-        onPress={onPrevious}
-        disabled={!hasPreviousTrack}
-        testID="previous-button"
-      >
-        <Icon
-          name="skip-previous"
-          size={currentIconSize.secondary}
-          color={hasPreviousTrack ? '#FFFFFF' : '#666666'}
-        />
-      </TouchableOpacity>
-
-      {/* Play/Pause */}
+      {/* Play/Pause - Centered */}
       <TouchableOpacity
         style={[
           styles.controlButton,
@@ -115,48 +73,6 @@ const AudioControls: React.FC<AudioControlsProps> = ({
         <Icon
           name={isPlaying ? 'pause' : 'play-arrow'}
           size={currentIconSize.main}
-          color={canPlay ? '#FFFFFF' : '#666666'}
-        />
-      </TouchableOpacity>
-
-      {/* Next Track */}
-      <TouchableOpacity
-        style={[
-          styles.controlButton,
-          styles.secondaryButton,
-          {
-            width: currentButtonSize.secondary,
-            height: currentButtonSize.secondary,
-          },
-        ]}
-        onPress={onNext}
-        disabled={!hasNextTrack}
-        testID="next-button"
-      >
-        <Icon
-          name="skip-next"
-          size={currentIconSize.secondary}
-          color={hasNextTrack ? '#FFFFFF' : '#666666'}
-        />
-      </TouchableOpacity>
-
-      {/* Skip Forward */}
-      <TouchableOpacity
-        style={[
-          styles.controlButton,
-          styles.secondaryButton,
-          {
-            width: currentButtonSize.secondary,
-            height: currentButtonSize.secondary,
-          },
-        ]}
-        onPress={onSkipForward}
-        disabled={!canPlay}
-        testID="skip-forward-button"
-      >
-        <Icon
-          name="forward-15"
-          size={currentIconSize.secondary}
           color={canPlay ? '#FFFFFF' : '#666666'}
         />
       </TouchableOpacity>

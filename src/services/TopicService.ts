@@ -20,25 +20,25 @@ class TopicService {
   }
 
   /**
-   * Initialize with mock data for development
+   * Initialize with your custom audio content
    */
   private initializeMockData(): void {
     this.topics = [
-      // Technology topics
+      // Technology topics - Replace with your own content
       {
         id: 'tech-1',
-        title: 'The Future of Artificial Intelligence',
-        description: 'Exploring how AI will transform our daily lives and work in the coming decades.',
+        title: 'Your Audio Title 1', // Replace with your title
+        description: 'Your audio description goes here. Describe what this audio is about.', // Replace with your description
         categoryId: '1',
-        audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3',
-        duration: 1800, // 30 minutes
-        author: 'Dr. Sarah Chen',
+        audioUrl: 'file:///android_asset/audio/your-audio-1.wav', // Replace with your .wav file name
+        duration: 300, // Replace with actual duration in seconds
+        author: 'Your Name', // Replace with your name
         publishDate: '2024-01-15T00:00:00.000Z',
-        thumbnailUrl: 'https://via.placeholder.com/300x200/4A90E2/FFFFFF?text=AI+Future',
+        thumbnailUrl: 'https://via.placeholder.com/300x200/4A90E2/FFFFFF?text=Your+Audio',
         metadata: {
           bitrate: 128,
-          format: 'mp3',
-          size: 28800000
+          format: 'wav',
+          size: 5000000 // Approximate file size in bytes
         }
       },
       {

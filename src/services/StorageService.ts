@@ -39,7 +39,7 @@ class StorageService {
         topicId,
         position,
         completed: false,
-        lastPlayed: new Date(),
+        lastPlayed: new Date().toISOString(),
         playCount: 1,
       };
 
@@ -86,8 +86,14 @@ class StorageService {
       if (!data) return null;
 
       const progressData = JSON.parse(data);
-      // Convert date string back to Date object
-      progressData.lastPlayed = new Date(progressData.lastPlayed);
+      
+      // Migration: Convert old Date objects to ISO strings
+      if (progressData.lastPlayed && typeof progressData.lastPlayed === 'object') {
+        progressData.lastPlayed = new Date(progressData.lastPlayed).toISOString();
+        // Save the migrated data back to storage
+        await AsyncStorage.setItem(`${this.KEYS.PROGRESS}_${topicId}`, JSON.stringify(progressData));
+      }
+      
       return progressData;
     } catch (error) {
       console.error('Failed to get progress data:', error);
@@ -106,7 +112,7 @@ class StorageService {
         topicId,
         position: existingProgress?.position || 0,
         completed: true,
-        lastPlayed: new Date(),
+        lastPlayed: new Date().toISOString(),
         playCount: existingProgress?.playCount || 1,
       };
 
@@ -200,7 +206,14 @@ class StorageService {
         const data = await AsyncStorage.getItem(key);
         if (data) {
           const progressData = JSON.parse(data);
-          progressData.lastPlayed = new Date(progressData.lastPlayed);
+          
+          // Migration: Convert old Date objects to ISO strings
+          if (progressData.lastPlayed && typeof progressData.lastPlayed === 'object') {
+            progressData.lastPlayed = new Date(progressData.lastPlayed).toISOString();
+            // Save the migrated data back to storage
+            await AsyncStorage.setItem(key, JSON.stringify(progressData));
+          }
+
           progressDataArray.push(progressData);
         }
       }

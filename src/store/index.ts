@@ -30,10 +30,30 @@ const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
-        ignoredPaths: ['userPreferences.progressData'],
+        ignoredActions: [
+          'persist/PERSIST', 
+          'persist/REHYDRATE',
+          'progress/setProgressData',
+          'progress/loadProgressData/fulfilled',
+          'progress/updateProgress/fulfilled',
+          'progress/updateProgress/pending',
+        ],
+        ignoredPaths: [
+          'userPreferences.progressData', 
+          'progress.progressData',
+          'progress.progressMap',
+        ],
         // Ignore Date-related paths during development
-        ignoredActionsPaths: ['payload.publishDate', 'meta.arg.publishDate'],
+        ignoredActionsPaths: [
+          'payload.publishDate', 
+          'meta.arg.publishDate', 
+          'payload.lastPlayed',
+          'payload.progressMap',
+          'payload.hist-2.lastPlayed',
+          'payload.sci-1.lastPlayed',
+          'payload.tech-1.lastPlayed',
+          'payload.tech-2.lastPlayed',
+        ],
       },
     }),
     // Temporarily disabled persistence middleware to fix 500 error

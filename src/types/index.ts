@@ -41,7 +41,7 @@ export interface ProgressData {
   topicId: string;
   position: number;
   completed: boolean;
-  lastPlayed: Date;
+  lastPlayed: string; // Changed from Date to string for Redux serialization
   playCount: number;
 }
 

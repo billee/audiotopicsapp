@@ -21,7 +21,6 @@ import { useResponsiveStyles, useLayoutConfig } from '../hooks/useOrientation';
 import {
   AudioControls,
   ProgressBar,
-  VolumeControl,
   TopicInfo,
   ResumeDialog,
 } from '../components/audio';
@@ -73,7 +72,7 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
     isPlaying,
     currentPosition,
     duration,
-    volume,
+
     isLoading,
     error,
     canPlay,
@@ -85,12 +84,14 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
     loadTopic,
     togglePlayback,
     seekTo,
-    setVolumeLevel,
+
     skipNext,
     skipPrevious,
     skipForward,
     skipBackward,
   } = useAudioPlayer();
+
+
 
   const {
     resumeDialog,
@@ -177,9 +178,7 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
     seekTo(position);
   };
 
-  const handleVolumeChange = (newVolume: number) => {
-    setVolumeLevel(newVolume);
-  };
+
 
   // Resume dialog handlers
   const handleResumeFromPosition = async () => {
@@ -322,16 +321,7 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
                 />
               </View>
 
-              {/* Volume Control */}
-              {audioPlayer.showVolumeControl && (
-                <View style={styles.volumeContainer}>
-                  <VolumeControl
-                    volume={volume}
-                    onVolumeChange={handleVolumeChange}
-                    orientation="horizontal"
-                  />
-                </View>
-              )}
+
             </View>
           </View>
         ) : (
@@ -373,14 +363,7 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
               />
             </View>
 
-            {/* Volume Control */}
-            <View style={styles.volumeContainer}>
-              <VolumeControl
-                volume={volume}
-                onVolumeChange={handleVolumeChange}
-                orientation="horizontal"
-              />
-            </View>
+
           </>
         )}
       </View>

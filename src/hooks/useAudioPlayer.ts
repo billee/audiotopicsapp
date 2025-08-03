@@ -145,6 +145,7 @@ export const useAudioPlayer = (): UseAudioPlayerReturn => {
       dispatch(setDuration(trackDuration));
       dispatch(setCurrentPosition(0));
     } catch (error) {
+      console.error('Failed to load topic:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to load topic';
       dispatch(setError(errorMessage));
     } finally {
@@ -156,12 +157,22 @@ export const useAudioPlayer = (): UseAudioPlayerReturn => {
     if (!audioServiceRef.current || !canPlay) return;
 
     try {
-      await audioServiceRef.current.play();
+      // Update Redux state immediately (optimistic update)
       dispatch(setPlaybackState(true));
       dispatch(setError(null));
+      
+      // Start the audio (don't wait for callback)
+      audioServiceRef.current.play().catch((error) => {
+        console.error('Audio playback failed:', error);
+        // Revert the optimistic update if playback fails
+        dispatch(setPlaybackState(false));
+        dispatch(setError(error.message));
+      });
     } catch (error) {
+      console.error('Failed to play audio:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to play audio';
       dispatch(setError(errorMessage));
+      dispatch(setPlaybackState(false));
     }
   }, [dispatch, canPlay]);
 

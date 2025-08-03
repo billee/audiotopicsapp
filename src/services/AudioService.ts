@@ -72,23 +72,28 @@ class AudioService implements AudioServiceInterface {
       }
 
       // Create new sound instance
+      console.log('AudioService.loadTrack: Loading audio from URL:', topic.audioUrl);
       this.sound = new Sound(topic.audioUrl, '', (error) => {
         if (error) {
-          console.error('Failed to load track:', error);
+          console.error('AudioService.loadTrack: Failed to load track:', error);
           reject(new Error(`Failed to load audio track: ${topic.title}`));
           return;
         }
 
+        console.log('AudioService.loadTrack: Sound loaded successfully');
         if (this.sound) {
           this.currentTopic = topic;
           this.duration = this.sound.getDuration();
           this.currentPosition = 0;
+          
+          console.log('AudioService.loadTrack: Duration:', this.duration, 'seconds');
           
           // Start progress tracking for the new topic
           this.progressService.startProgressTracking(topic);
           
           resolve();
         } else {
+          console.error('AudioService.loadTrack: Sound instance is null after loading');
           reject(new Error('Sound instance is null'));
         }
       });
@@ -100,16 +105,21 @@ class AudioService implements AudioServiceInterface {
     
     return new Promise((resolve, reject) => {
       if (!this.sound) {
+        console.error('AudioService.play: No audio track loaded');
         reject(new Error('No audio track loaded'));
         return;
       }
 
+      console.log('AudioService.play: Calling sound.play()...');
       this.sound.play((success) => {
+        console.log('AudioService.play: Callback received, success:', success);
         if (success) {
           this.isPlaying = true;
           this.startPositionUpdates();
+          console.log('AudioService.play: Playback started successfully');
           resolve();
         } else {
+          console.error('AudioService.play: Playback failed');
           reject(new Error('Failed to start audio playback'));
         }
       });

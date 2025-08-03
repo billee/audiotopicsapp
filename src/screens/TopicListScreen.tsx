@@ -5,12 +5,16 @@
 import React, { useEffect, useCallback } from 'react';
 import {
   View,
+  Text,
+  TouchableOpacity,
   StyleSheet,
   SafeAreaView,
   StatusBar,
   ImageBackground,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useTopics } from '../hooks/useTopics';
+import { useAudioPlayer } from '../hooks/useAudioPlayer';
 import { useAppSelector } from '../store/hooks';
 import { selectCurrentTopic } from '../store/selectors/audioSelectors';
 import { selectCategoryById } from '../store/selectors/categoriesSelectors';
@@ -44,6 +48,9 @@ const TopicListScreen: React.FC<TopicListScreenProps> = ({ route, navigation }) 
     loadTopicsForCategory,
     refreshTopics,
   } = useTopics(categoryId);
+
+  // Audio player hook
+  const { loadTopic, play } = useAudioPlayer();
 
   // Responsive design
   const { isLandscape, isTablet } = useResponsiveStyles();
@@ -97,6 +104,20 @@ const TopicListScreen: React.FC<TopicListScreenProps> = ({ route, navigation }) 
         backgroundColor={category?.color || '#007AFF'}
       />
       
+      {/* Header with back button */}
+      <View style={[styles.header, { backgroundColor: category?.color || '#007AFF' }]}>
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={() => navigation.goBack()}
+        >
+          <Icon name="arrow-back" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>
+          {category?.name || route.params.categoryName || 'Topics'}
+        </Text>
+        <View style={styles.headerSpacer} />
+      </View>
+      
       {backgroundImageUrl ? (
         <ImageBackground
           source={{ uri: backgroundImageUrl }}
@@ -118,7 +139,7 @@ const TopicListScreen: React.FC<TopicListScreenProps> = ({ route, navigation }) 
           </View>
         </ImageBackground>
       ) : (
-        <View style={styles.container}>
+        <View style={styles.content}>
           <TopicList
             topics={topicsWithProgress}
             loading={loading}
@@ -140,6 +161,41 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F9FA',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    flex: 1,
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    marginHorizontal: 16,
+  },
+  headerSpacer: {
+    width: 40,
+  },
+  content: {
+    flex: 1,
   },
   backgroundImage: {
     flex: 1,

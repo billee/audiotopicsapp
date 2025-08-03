@@ -7,7 +7,7 @@
 
 import React, { useState } from 'react';
 import { Provider } from 'react-redux';
-import { View, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import store from './src/store';
 import CategoryScreen from './src/screens/CategoryScreen';
 import TopicListScreen from './src/screens/TopicListScreen';
@@ -73,7 +73,49 @@ function App(): React.JSX.Element {
   const renderCurrentScreen = () => {
     switch (navState.currentScreen) {
       case 'Categories':
-        return <CategoryScreen navigation={mockNavigation} />;
+        // Create a minimal test version of CategoryScreen
+        return (
+          <View style={{ flex: 1, backgroundColor: '#000' }}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+              <Text style={{ color: '#FFF', fontSize: 32, fontWeight: 'bold', marginBottom: 16, textAlign: 'center' }}>
+                Audio Topics
+              </Text>
+              <Text style={{ color: '#E0E0E0', fontSize: 16, textAlign: 'center', marginBottom: 32 }}>
+                Discover engaging audio content
+              </Text>
+              <TouchableOpacity 
+                style={{ backgroundColor: '#4A90E2', padding: 16, borderRadius: 12, marginBottom: 16 }}
+                onPress={() => {
+                  const techCategory: Category = { id: '1', name: 'Technology', description: 'Tech topics', topicCount: 15, color: '#4A90E2' };
+                  navigateToTopicList(techCategory);
+                }}
+              >
+                <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '600' }}>Technology</Text>
+                <Text style={{ color: '#E0E0E0', fontSize: 12 }}>15 topics</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={{ backgroundColor: '#50C878', padding: 16, borderRadius: 12, marginBottom: 16 }}
+                onPress={() => {
+                  const scienceCategory: Category = { id: '2', name: 'Science', description: 'Science topics', topicCount: 12, color: '#50C878' };
+                  navigateToTopicList(scienceCategory);
+                }}
+              >
+                <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '600' }}>Science</Text>
+                <Text style={{ color: '#E0E0E0', fontSize: 12 }}>12 topics</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={{ backgroundColor: '#D2691E', padding: 16, borderRadius: 12 }}
+                onPress={() => {
+                  const historyCategory: Category = { id: '3', name: 'History', description: 'History topics', topicCount: 20, color: '#D2691E' };
+                  navigateToTopicList(historyCategory);
+                }}
+              >
+                <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '600' }}>History</Text>
+                <Text style={{ color: '#E0E0E0', fontSize: 12 }}>20 topics</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        );
       case 'TopicList':
         return (
           <TopicListScreen 
@@ -98,7 +140,11 @@ function App(): React.JSX.Element {
           />
         );
       default:
-        return <CategoryScreen navigation={mockNavigation} />;
+        return (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}>
+            <Text style={{ color: '#FFF', fontSize: 24 }}>Audio Topics App</Text>
+          </View>
+        );
     }
   };
 
@@ -108,8 +154,8 @@ function App(): React.JSX.Element {
         {/* Current screen */}
         {renderCurrentScreen()}
 
-        {/* Mini player overlay - hide when on audio player screen */}
-        {navState.currentScreen !== 'AudioPlayer' && <MiniPlayerContainer />}
+        {/* Mini player overlay - temporarily disabled for debugging */}
+        {/* {navState.currentScreen !== 'AudioPlayer' && <MiniPlayerContainer />} */}
       </View>
     </Provider>
   );

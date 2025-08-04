@@ -25,14 +25,9 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category, onPress }) => {
   const { categoryGrid } = useLayoutConfig();
   const { screenWidth, isLandscape } = useResponsiveStyles();
   
-  // Calculate responsive card width based on columns and screen width
-  const cardMargin = getResponsivePadding(16);
-  const cardSpacing = getResponsiveMargin(8);
-  const totalMargin = cardMargin * 2 + cardSpacing * (categoryGrid.columns - 1);
-  const cardWidth = (screenWidth - totalMargin) / categoryGrid.columns;
-  
-  // Calculate responsive height based on aspect ratio
-  const cardHeight = cardWidth / categoryGrid.itemAspectRatio;
+  // Set fixed dimensions to match the widest box (Technology)
+  const cardWidth = isLandscape ? 200 : 180;
+  const cardHeight = isLandscape ? 120 : 150;
 
   const handlePress = () => {
     onPress(category);
@@ -45,6 +40,10 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category, onPress }) => {
         {
           width: cardWidth,
           height: cardHeight,
+          minWidth: cardWidth,
+          maxWidth: cardWidth,
+          minHeight: cardHeight,
+          maxHeight: cardHeight,
           marginBottom: getResponsiveMargin(16),
         }
       ]}
@@ -57,7 +56,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category, onPress }) => {
         imageStyle={[styles.imageStyle, { borderRadius: getResponsiveBorderRadius(12) }]}
       >
         <View style={styles.overlay}>
-          <View style={[styles.content, { padding: getResponsivePadding(12) }]}>
+          <View style={styles.content}>
             <Text style={[
               styles.categoryName,
               { 
@@ -92,6 +91,10 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+    flexShrink: 0,
+    flexGrow: 0,
+    flex: 0,
+    position: 'relative',
   },
   backgroundImage: {
     flex: 1,
@@ -106,16 +109,24 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   content: {
-    // padding will be set dynamically
+    padding: 20,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    width: '100%',
+    alignItems: 'flex-start',
   },
   categoryName: {
     fontWeight: '600',
     color: '#FFFFFF',
     marginBottom: 4,
+    width: '100%',
+    textAlign: 'left',
   },
   topicCount: {
     color: '#E0E0E0',
     fontWeight: '400',
+    width: '100%',
+    textAlign: 'left',
   },
 });
 

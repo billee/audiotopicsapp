@@ -10,7 +10,6 @@ import {
   StyleSheet,
   SafeAreaView,
   StatusBar,
-  ImageBackground,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useTopics } from '../hooks/useTopics';
@@ -21,6 +20,9 @@ import { selectCategoryById } from '../store/selectors/categoriesSelectors';
 import { TopicList } from '../components/topic';
 import { AudioTopic } from '../types';
 import { useResponsiveStyles } from '../hooks/useOrientation';
+import { BackgroundImage } from '../components/common';
+import { useBackgroundImage } from '../hooks/useBackgroundImage';
+import { getOptimalOverlayOpacity, getCategoryColor, mapCategoryIdToName } from '../utils/backgroundImages';
 
 // Props interface for simplified navigation
 interface TopicListScreenProps {
@@ -95,7 +97,20 @@ const TopicListScreen: React.FC<TopicListScreenProps> = ({ route, navigation }) 
     refreshTopics();
   }, [refreshTopics]);
 
-  const backgroundImageUrl = category?.backgroundImageUrl;
+  // Background image hook
+  const { getBackgroundImage } = useBackgroundImage();
+
+  // Get contextual background image for this category
+  const backgroundImageUrl = getBackgroundImage({
+    type: 'topic-list',
+    categoryId: categoryId, // Use the numeric ID, mapping will be handled internally
+  });
+
+  // Get optimal overlay opacity for topic list readability
+  const overlayOpacity = getOptimalOverlayOpacity({ type: 'topic-list', categoryId });
+
+  // Fallback color based on category
+  const fallbackColor = getCategoryColor(categoryId);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -118,41 +133,28 @@ const TopicListScreen: React.FC<TopicListScreenProps> = ({ route, navigation }) 
         <View style={styles.headerSpacer} />
       </View>
       
-      {backgroundImageUrl ? (
-        <ImageBackground
-          source={{ uri: backgroundImageUrl }}
-          style={styles.backgroundImage}
-          resizeMode="cover"
-        >
-          <View style={styles.overlay}>
-            <TopicList
-              topics={topicsWithProgress}
-              loading={loading}
-              error={error}
-              currentPlayingTopicId={currentTopic?.id}
-              onTopicPress={handleTopicPress}
-              onRefresh={handleRefresh}
-              emptyMessage={`No topics available in ${category?.name || 'this category'}`}
-              showStats={true}
-              stats={stats}
-            />
-          </View>
-        </ImageBackground>
-      ) : (
-        <View style={styles.content}>
-          <TopicList
-            topics={topicsWithProgress}
-            loading={loading}
-            error={error}
-            currentPlayingTopicId={currentTopic?.id}
-            onTopicPress={handleTopicPress}
-            onRefresh={handleRefresh}
-            emptyMessage={`No topics available in ${category?.name || 'this category'}`}
-            showStats={true}
-            stats={stats}
-          />
-        </View>
-      )}
+      <BackgroundImage
+        source={backgroundImageUrl}
+        overlay={true}
+        overlayOpacity={overlayOpacity}
+        overlayColors={['rgba(0,0,0,0.2)', 'rgba(0,0,0,0.6)']}
+        fallbackColor={fallbackColor}
+        showLoadingState={true}
+        showErrorState={true}
+        testID="topic-list-background"
+      >
+        <TopicList
+          topics={topicsWithProgress}
+          loading={loading}
+          error={error}
+          currentPlayingTopicId={currentTopic?.id}
+          onTopicPress={handleTopicPress}
+          onRefresh={handleRefresh}
+          emptyMessage={`No topics available in ${category?.name || 'this category'}`}
+          showStats={true}
+          stats={stats}
+        />
+      </BackgroundImage>
     </SafeAreaView>
   );
 };
@@ -193,16 +195,6 @@ const styles = StyleSheet.create({
   },
   headerSpacer: {
     width: 40,
-  },
-  content: {
-    flex: 1,
-  },
-  backgroundImage: {
-    flex: 1,
-  },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
   },
 });
 

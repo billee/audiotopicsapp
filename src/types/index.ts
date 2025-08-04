@@ -56,3 +56,6 @@ export * from '../utils/validation';
 
 // Re-export data transformation utilities
 export * from '../utils/dataTransform';
+
+// Re-export background image types
+export * from './backgroundImage';

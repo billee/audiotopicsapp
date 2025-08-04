@@ -21,7 +21,9 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
   const { categoryGrid } = useLayoutConfig();
 
   const renderCategory = ({ item }: { item: Category }) => (
-    <CategoryCard category={item} onPress={onCategorySelect} />
+    <View style={styles.cardWrapper}>
+      <CategoryCard category={item} onPress={onCategorySelect} />
+    </View>
   );
 
   const renderSeparator = () => <View style={[styles.separator, { height: categoryGrid.spacing }]} />;
@@ -31,8 +33,7 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
       data={categories}
       renderItem={renderCategory}
       keyExtractor={(item) => item.id}
-      numColumns={categoryGrid.columns}
-      columnWrapperStyle={categoryGrid.columns > 1 ? styles.row : undefined}
+      numColumns={1}
       contentContainerStyle={[styles.container, { padding: getResponsivePadding(16) }]}
       showsVerticalScrollIndicator={false}
       refreshing={refreshing}
@@ -45,9 +46,14 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
 const styles = StyleSheet.create({
   container: {
     paddingBottom: getResponsivePadding(32),
+    alignItems: 'center',
   },
-  row: {
-    justifyContent: 'space-between',
+  cardWrapper: {
+    alignItems: 'center',
+    marginBottom: getResponsiveMargin(16),
+    flexShrink: 0,
+    flexGrow: 0,
+    flex: 0,
   },
   separator: {
     height: getResponsiveMargin(8),

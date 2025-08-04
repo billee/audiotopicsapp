@@ -4,13 +4,13 @@ import {
   Text,
   StyleSheet,
   SafeAreaView,
-  ImageBackground,
   StatusBar,
 } from 'react-native';
 import { useCategories } from '../hooks/useCategories';
 import { useResponsiveStyles } from '../hooks/useOrientation';
+import { useBackgroundImage } from '../hooks/useBackgroundImage';
 import { CategoryGrid } from '../components/category';
-import { LoadingSpinner, ErrorMessage } from '../components/common';
+import { LoadingSpinner, ErrorMessage, BackgroundImage } from '../components/common';
 import { Category } from '../types';
 import { responsiveStyles, scaleFontSize } from '../utils/responsive';
 
@@ -40,6 +40,9 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
     layoutConfig,
     getResponsiveStyle,
   } = useResponsiveStyles();
+
+  // Background image hook
+  const { getBackgroundImage, preloadImages } = useBackgroundImage();
 
   // Handle category selection
   const handleCategorySelect = useCallback((category: Category) => {
@@ -73,19 +76,28 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
     }
   }, [hasCategories, loading, error, loadCategories]);
 
+  // Preload background images on mount
+  useEffect(() => {
+    preloadImages();
+  }, [preloadImages]);
+
+  // Get the background image for category screen
+  const backgroundImageUri = getBackgroundImage({ type: 'category-screen' });
+
   // Render loading state
   if (loading && !hasCategories) {
     return (
       <SafeAreaView style={styles.container}>
-        <ImageBackground
-          source={{ uri: 'https://via.placeholder.com/400x800/1a1a1a/FFFFFF?text=Audio+Topics' }}
-          style={styles.backgroundImage}
-          imageStyle={styles.backgroundImageStyle}
+        <BackgroundImage
+          source={backgroundImageUri}
+          overlay={true}
+          overlayOpacity={0.6}
+          overlayColors={['rgba(0,0,0,0.3)', 'rgba(0,0,0,0.7)']}
+          fallbackColor="#1a1a1a"
+          testID="category-screen-background"
         >
-          <View style={styles.overlay}>
-            <LoadingSpinner message="Loading categories..." />
-          </View>
-        </ImageBackground>
+          <LoadingSpinner message="Loading categories..." />
+        </BackgroundImage>
       </SafeAreaView>
     );
   }
@@ -94,19 +106,20 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
   if (error && !hasCategories) {
     return (
       <SafeAreaView style={styles.container}>
-        <ImageBackground
-          source={{ uri: 'https://via.placeholder.com/400x800/1a1a1a/FFFFFF?text=Audio+Topics' }}
-          style={styles.backgroundImage}
-          imageStyle={styles.backgroundImageStyle}
+        <BackgroundImage
+          source={backgroundImageUri}
+          overlay={true}
+          overlayOpacity={0.6}
+          overlayColors={['rgba(0,0,0,0.3)', 'rgba(0,0,0,0.7)']}
+          fallbackColor="#1a1a1a"
+          testID="category-screen-background"
         >
-          <View style={styles.overlay}>
-            <ErrorMessage
-              message={error}
-              onRetry={handleRetry}
-              retryText="Reload Categories"
-            />
-          </View>
-        </ImageBackground>
+          <ErrorMessage
+            message={error}
+            onRetry={handleRetry}
+            retryText="Reload Categories"
+          />
+        </BackgroundImage>
       </SafeAreaView>
     );
   }
@@ -115,21 +128,22 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
   if (isEmpty) {
     return (
       <SafeAreaView style={styles.container}>
-        <ImageBackground
-          source={{ uri: 'https://via.placeholder.com/400x800/1a1a1a/FFFFFF?text=Audio+Topics' }}
-          style={styles.backgroundImage}
-          imageStyle={styles.backgroundImageStyle}
+        <BackgroundImage
+          source={backgroundImageUri}
+          overlay={true}
+          overlayOpacity={0.6}
+          overlayColors={['rgba(0,0,0,0.3)', 'rgba(0,0,0,0.7)']}
+          fallbackColor="#1a1a1a"
+          testID="category-screen-background"
         >
-          <View style={styles.overlay}>
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyTitle}>No Categories Available</Text>
-              <Text style={styles.emptyMessage}>
-                There are no audio topic categories available at the moment.
-                Please check back later.
-              </Text>
-            </View>
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyTitle}>No Categories Available</Text>
+            <Text style={styles.emptyMessage}>
+              There are no audio topic categories available at the moment.
+              Please check back later.
+            </Text>
           </View>
-        </ImageBackground>
+        </BackgroundImage>
       </SafeAreaView>
     );
   }
@@ -138,40 +152,43 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="rgba(0,0,0,0.3)" translucent />
-      <ImageBackground
-        source={{ uri: 'https://via.placeholder.com/400x800/1a1a1a/FFFFFF?text=Audio+Topics' }}
-        style={styles.backgroundImage}
-        imageStyle={styles.backgroundImageStyle}
+      <BackgroundImage
+        source={backgroundImageUri}
+        overlay={true}
+        overlayOpacity={0.4}
+        overlayColors={['rgba(0,0,0,0.2)', 'rgba(0,0,0,0.6)']}
+        fallbackColor="#1a1a1a"
+        showLoadingState={true}
+        showErrorState={true}
+        testID="category-screen-background"
       >
-        <View style={styles.overlay}>
-          <View style={[
-            styles.header,
-            getResponsiveStyle(styles.headerPortrait, styles.headerLandscape)
+        <View style={[
+          styles.header,
+          getResponsiveStyle(styles.headerPortrait, styles.headerLandscape)
+        ]}>
+          <Text style={[
+            styles.title,
+            getResponsiveStyle(styles.titlePortrait, styles.titleLandscape)
           ]}>
-            <Text style={[
-              styles.title,
-              getResponsiveStyle(styles.titlePortrait, styles.titleLandscape)
-            ]}>
-              Audio Topics
-            </Text>
-            <Text style={[
-              styles.subtitle,
-              getResponsiveStyle(styles.subtitlePortrait, styles.subtitleLandscape)
-            ]}>
-              Discover {categories.length} categories of engaging audio content
-            </Text>
-          </View>
-          
-          <View style={styles.content}>
-            <CategoryGrid
-              categories={categories}
-              onCategorySelect={handleCategorySelect}
-              refreshing={loading}
-              onRefresh={handleRefresh}
-            />
-          </View>
+            Audio Topics
+          </Text>
+          <Text style={[
+            styles.subtitle,
+            getResponsiveStyle(styles.subtitlePortrait, styles.subtitleLandscape)
+          ]}>
+            Discover {categories.length} categories of engaging audio content
+          </Text>
         </View>
-      </ImageBackground>
+        
+        <View style={styles.content}>
+          <CategoryGrid
+            categories={categories}
+            onCategorySelect={handleCategorySelect}
+            refreshing={loading}
+            onRefresh={handleRefresh}
+          />
+        </View>
+      </BackgroundImage>
     </SafeAreaView>
   );
 };
@@ -180,16 +197,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000',
-  },
-  backgroundImage: {
-    flex: 1,
-  },
-  backgroundImageStyle: {
-    opacity: 0.3,
-  },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
   },
   header: {
     paddingTop: StatusBar.currentHeight || 44,
@@ -208,6 +215,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     marginBottom: 8,
     textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.8)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   titlePortrait: {
     fontSize: scaleFontSize(32),
@@ -219,6 +229,9 @@ const styles = StyleSheet.create({
     color: '#E0E0E0',
     textAlign: 'center',
     lineHeight: 22,
+    textShadowColor: 'rgba(0, 0, 0, 0.8)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   subtitlePortrait: {
     fontSize: scaleFontSize(16),
@@ -241,12 +254,18 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     marginBottom: 16,
     textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.8)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   emptyMessage: {
     fontSize: scaleFontSize(16),
     color: '#E0E0E0',
     textAlign: 'center',
     lineHeight: scaleFontSize(16) * 1.5,
+    textShadowColor: 'rgba(0, 0, 0, 0.8)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
 });
 

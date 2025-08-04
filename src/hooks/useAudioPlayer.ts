@@ -136,11 +136,13 @@ export const useAudioPlayer = (): UseAudioPlayerReturn => {
 
     dispatch(setLoading(true));
     dispatch(setError(null));
+    // Ensure playback is stopped when loading a new topic
+    dispatch(setPlaybackState(false));
 
     try {
       await audioServiceRef.current.loadTrack(topic);
       dispatch(setCurrentTopic(topic));
-      
+
       const trackDuration = await audioServiceRef.current.getDuration();
       dispatch(setDuration(trackDuration));
       dispatch(setCurrentPosition(0));
@@ -160,7 +162,7 @@ export const useAudioPlayer = (): UseAudioPlayerReturn => {
       // Update Redux state immediately (optimistic update)
       dispatch(setPlaybackState(true));
       dispatch(setError(null));
-      
+
       // Start the audio (don't wait for callback)
       audioServiceRef.current.play().catch((error) => {
         console.error('Audio playback failed:', error);

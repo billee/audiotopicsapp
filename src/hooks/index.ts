@@ -5,3 +5,4 @@ export { useAudioPlayer } from './useAudioPlayer';
 export { useMiniPlayer } from './useMiniPlayer';
 export { useProgress } from './useProgress';
 export { useOrientation, useResponsiveStyles, useOrientationChange, useLayoutConfig } from './useOrientation';
+export { useBackgroundImage } from './useBackgroundImage';

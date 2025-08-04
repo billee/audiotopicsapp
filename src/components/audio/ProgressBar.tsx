@@ -10,7 +10,6 @@ import {
   StyleSheet,
   ViewStyle,
   TextStyle,
-  Dimensions,
   PanResponder,
 } from 'react-native';
 
@@ -35,49 +34,102 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragPosition, setDragPosition] = useState(0);
+  const progressBarRef = useRef<View>(null);
+  const [barWidth, setBarWidth] = useState(300);
 
   const progress = duration > 0 ? currentTime / duration : 0;
   const displayProgress = isDragging ? dragPosition : progress;
+
+  // Pan responder for dragging the slider
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (evt, gestureState) => {
+        // Only start pan responder if there's actual movement
+        return Math.abs(gestureState.dx) > 2 || Math.abs(gestureState.dy) > 2;
+      },
+      
+      onPanResponderGrant: (event) => {
+        setIsDragging(true);
+        const { locationX } = event.nativeEvent;
+        const newProgress = Math.max(0, Math.min(1, locationX / barWidth));
+        setDragPosition(newProgress);
+      },
+      
+      onPanResponderMove: (event) => {
+        const { locationX } = event.nativeEvent;
+        const newProgress = Math.max(0, Math.min(1, locationX / barWidth));
+        setDragPosition(newProgress);
+      },
+      
+      onPanResponderRelease: (event) => {
+        const { locationX } = event.nativeEvent;
+        const finalProgress = Math.max(0, Math.min(1, locationX / barWidth));
+        
+        if (duration > 0) {
+          const seekTime = finalProgress * duration;
+          onSeek(seekTime);
+        }
+        setIsDragging(false);
+      },
+      
+      onPanResponderTerminate: () => {
+        setIsDragging(false);
+      },
+    })
+  ).current;
 
   // Handle progress bar press for seeking
   const handleProgressBarPress = useCallback(
     (event: any) => {
       const { locationX } = event.nativeEvent;
-      const barWidth = 300; // This should be measured dynamically
       const newProgress = Math.max(0, Math.min(1, locationX / barWidth));
       const seekTime = newProgress * duration;
       onSeek(seekTime);
     },
-    [duration, onSeek]
+    [duration, onSeek, barWidth]
   );
+
+  // Measure the progress bar width
+  const onLayout = useCallback((event: any) => {
+    const { width } = event.nativeEvent.layout;
+    setBarWidth(width);
+  }, []);
 
   return (
     <View style={[styles.container, style]}>
       <View style={styles.progressContainer}>
-        <TouchableOpacity
+        <View
+          ref={progressBarRef}
           style={styles.progressBar}
-          onPress={handleProgressBarPress}
-          activeOpacity={0.8}
-          testID="progress-bar"
+          onLayout={onLayout}
+          {...panResponder.panHandlers}
         >
-          <View style={styles.progressTrack} />
-          <View
-            style={[
-              styles.progressFill,
-              { width: `${displayProgress * 100}%` },
-            ]}
-          />
+          <TouchableOpacity
+            style={styles.progressBarTouchable}
+            onPress={handleProgressBarPress}
+            activeOpacity={1}
+            testID="progress-bar"
+          >
+            <View style={styles.progressTrack} />
+            <View
+              style={[
+                styles.progressFill,
+                { width: `${displayProgress * 100}%` },
+              ]}
+            />
+          </TouchableOpacity>
           <View
             style={[
               styles.progressThumb,
               {
                 left: `${displayProgress * 100}%`,
-                opacity: isDragging ? 1 : 0.8,
-                transform: [{ scale: isDragging ? 1.2 : 1 }],
+                opacity: isDragging ? 1 : 0.9,
+                transform: [{ scale: isDragging ? 1.3 : 1 }],
               },
             ]}
           />
-        </TouchableOpacity>
+        </View>
       </View>
       
       {showTimeLabels && (
@@ -119,47 +171,56 @@ const styles = StyleSheet.create({
   } as ViewStyle,
 
   progressBar: {
-    height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    height: 40,
+    justifyContent: 'center',
+    position: 'relative',
+  } as ViewStyle,
+
+  progressBarTouchable: {
+    height: 20,
+    backgroundColor: 'transparent',
     borderRadius: 2,
     position: 'relative',
+    justifyContent: 'center',
   } as ViewStyle,
 
   progressTrack: {
     position: 'absolute',
-    top: 0,
+    top: 8,
     left: 0,
     right: 0,
-    bottom: 0,
+    height: 4,
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
     borderRadius: 2,
   } as ViewStyle,
 
   progressFill: {
     position: 'absolute',
-    top: 0,
+    top: 8,
     left: 0,
-    bottom: 0,
+    height: 4,
     backgroundColor: '#007AFF',
     borderRadius: 2,
   } as ViewStyle,
 
   progressThumb: {
     position: 'absolute',
-    top: -6,
-    width: 16,
-    height: 16,
+    top: -8,
+    width: 20,
+    height: 20,
     backgroundColor: '#007AFF',
-    borderRadius: 8,
-    marginLeft: -8,
-    elevation: 4,
+    borderRadius: 10,
+    marginLeft: -10,
+    elevation: 6,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 3,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
   } as ViewStyle,
 });
 

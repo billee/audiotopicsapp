@@ -134,6 +134,10 @@ const BackgroundImage: React.FC<BackgroundImageProps> = ({
     if (typeof source === 'string') {
       return { uri: source };
     }
+    // Handle local assets from require()
+    if (typeof source === 'number') {
+      return source;
+    }
     return source;
   };
 
@@ -150,7 +154,7 @@ const BackgroundImage: React.FC<BackgroundImageProps> = ({
 
     return (
       <FastImage
-        source={{
+        source={typeof source === 'number' ? source : {
           ...getImageSource(),
           priority: FastImage.priority.high,
           cache: FastImage.cacheControl.immutable,

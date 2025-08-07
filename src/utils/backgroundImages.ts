@@ -412,7 +412,8 @@ export const getRemoteBackgroundUrl = (context: BackgroundContext): string => {
  * Checks if a specific category has a dedicated background image
  */
 export const categoryHasBackground = (categoryId: string): boolean => {
-    const categoryName = mapCategoryIdToName(categoryId);
+    // Handle both numeric IDs and category names
+    const categoryName = /^\d+$/.test(categoryId) ? mapCategoryIdToName(categoryId) : categoryId;
     return hasCategoryBackground(categoryName);
 };
 

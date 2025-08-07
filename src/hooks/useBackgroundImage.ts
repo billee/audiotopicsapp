@@ -13,6 +13,7 @@ import {
     getFallbackColor,
     mapCategoryIdToName
 } from '../utils/backgroundImages';
+import { backgroundAssets, getLocalAssetByContext, getRemoteUrlByContext } from '../assets/backgrounds';
 
 // Default background configuration
 const DEFAULT_BACKGROUND_CONFIG: BackgroundConfig = {
@@ -49,38 +50,23 @@ export const useBackgroundImage = (
     const preloadedImages = useRef<Set<string>>(new Set());
     const ambientRotationIndex = useRef<number>(0);
 
-    const getBackgroundImage = useCallback((context: BackgroundContext): string => {
-        switch (context.type) {
-            case 'category-screen':
-                return config.categoryScreen.default;
+    const getBackgroundImage = useCallback((context: BackgroundContext): string | any => {
+        console.log('getBackgroundImage called with context:', context);
 
-            case 'topic-list':
-                const categoryName = mapCategoryIdToName(context.categoryId);
-                return config.topicList[categoryName] || config.topicList.default;
+        // Try to get local asset first, fallback to remote URL
+        const localAsset = getLocalAssetByContext(context.type, context.categoryId);
+        console.log('Local asset for', context.categoryId, ':', localAsset);
 
-            case 'audio-player':
-                // For audio player, rotate through ambient backgrounds or use default
-                const ambientImages = config.audioPlayer.ambient;
-                if (ambientImages.length > 0) {
-                    // Use topic-specific background if available, otherwise rotate through ambient
-                    if (context.topicId) {
-                        // Try to find a topic-specific background (could be extended in the future)
-                        // For now, use a deterministic selection based on topicId
-                        const topicIndex = context.topicId.length % ambientImages.length;
-                        return ambientImages[topicIndex];
-                    } else {
-                        // Rotate through ambient backgrounds for variety
-                        const currentIndex = ambientRotationIndex.current % ambientImages.length;
-                        ambientRotationIndex.current = (ambientRotationIndex.current + 1) % ambientImages.length;
-                        return ambientImages[currentIndex];
-                    }
-                }
-                return config.audioPlayer.default;
-
-            default:
-                return config.categoryScreen.default;
+        if (localAsset) {
+            console.log('Using local asset for', context.categoryId);
+            return localAsset;
         }
-    }, [config]);
+
+        // Fallback to remote URL
+        const remoteUrl = getRemoteUrlByContext(context.type, context.categoryId);
+        console.log('Using remote URL for', context.categoryId, ':', remoteUrl);
+        return remoteUrl;
+    }, []);
 
     const preloadImages = useCallback(async (): Promise<void> => {
         const imagesToPreload: string[] = [

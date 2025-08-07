@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   } as ViewStyle,
 
   placeholderText: {
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: '#6b7280', // Medium gray for placeholder
     fontSize: 16,
     fontStyle: 'italic',
   } as TextStyle,
@@ -198,41 +198,56 @@ const styles = StyleSheet.create({
   } as ViewStyle,
 
   title: {
-    color: '#FFFFFF',
+    color: '#1a2332', // Dark navy for better contrast
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 8,
     lineHeight: 30,
+    textShadowColor: 'rgba(255, 255, 255, 0.8)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   } as TextStyle,
 
   compactTitle: {
-    color: '#FFFFFF',
+    color: '#1a2332', // Dark navy for better contrast
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 2,
+    textShadowColor: 'rgba(255, 255, 255, 0.8)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
   } as TextStyle,
 
   author: {
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: '#374151', // Medium gray for secondary text
     fontSize: 18,
     fontWeight: '500',
     textAlign: 'center',
     marginBottom: 12,
+    textShadowColor: 'rgba(255, 255, 255, 0.6)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
   } as TextStyle,
 
   compactAuthor: {
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: '#4b5563', // Medium gray for secondary text
     fontSize: 14,
     fontWeight: '400',
+    textShadowColor: 'rgba(255, 255, 255, 0.6)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
   } as TextStyle,
 
   description: {
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: '#1f2937', // Dark gray for description
     fontSize: 16,
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 20,
+    textShadowColor: 'rgba(255, 255, 255, 0.7)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
   } as TextStyle,
 
   metadataContainer: {
@@ -251,13 +266,13 @@ const styles = StyleSheet.create({
   } as ViewStyle,
 
   metadataLabel: {
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: '#4b5563', // Medium gray for labels
     fontSize: 14,
     fontWeight: '500',
   } as TextStyle,
 
   metadataValue: {
-    color: '#FFFFFF',
+    color: '#1a2332', // Dark navy for values
     fontSize: 14,
     fontWeight: '600',
   } as TextStyle,

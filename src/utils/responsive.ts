@@ -57,13 +57,13 @@ export const BREAKPOINTS = {
  */
 export const getScreenSize = (): ScreenSize => {
   let width = SCREEN_WIDTH;
-  
+
   try {
     width = Dimensions.get('window').width;
   } catch (error) {
     // Use fallback width
   }
-  
+
   if (width < BREAKPOINTS.SMALL_WIDTH) {
     return SCREEN_SIZES.SMALL;
   } else if (width <= BREAKPOINTS.MEDIUM_WIDTH) {
@@ -79,7 +79,7 @@ export const getScreenSize = (): ScreenSize => {
 export const getOrientation = (): Orientation => {
   let width = SCREEN_WIDTH;
   let height = SCREEN_HEIGHT;
-  
+
   try {
     const dimensions = Dimensions.get('window');
     width = dimensions.width;
@@ -87,7 +87,7 @@ export const getOrientation = (): Orientation => {
   } catch (error) {
     // Use fallback dimensions
   }
-  
+
   return width > height ? ORIENTATIONS.LANDSCAPE : ORIENTATIONS.PORTRAIT;
 };
 
@@ -111,7 +111,7 @@ export const isPortrait = (): boolean => {
 export const isTablet = (): boolean => {
   let width = SCREEN_WIDTH;
   let height = SCREEN_HEIGHT;
-  
+
   try {
     const dimensions = Dimensions.get('window');
     width = dimensions.width;
@@ -119,7 +119,7 @@ export const isTablet = (): boolean => {
   } catch (error) {
     // Use fallback dimensions
   }
-  
+
   return width >= BREAKPOINTS.TABLET_WIDTH || height >= BREAKPOINTS.TABLET_HEIGHT;
 };
 
@@ -128,13 +128,13 @@ export const isTablet = (): boolean => {
  */
 export const scaleWidth = (size: number): number => {
   let width = SCREEN_WIDTH;
-  
+
   try {
     width = Dimensions.get('window').width;
   } catch (error) {
     // Use fallback width
   }
-  
+
   return (width / BASE_WIDTH) * size;
 };
 
@@ -143,13 +143,13 @@ export const scaleWidth = (size: number): number => {
  */
 export const scaleHeight = (size: number): number => {
   let height = SCREEN_HEIGHT;
-  
+
   try {
     height = Dimensions.get('window').height;
   } catch (error) {
     // Use fallback height
   }
-  
+
   return (height / BASE_HEIGHT) * size;
 };
 
@@ -159,7 +159,7 @@ export const scaleHeight = (size: number): number => {
 export const scaleFontSize = (size: number): number => {
   let width = SCREEN_WIDTH;
   let height = SCREEN_HEIGHT;
-  
+
   try {
     const dimensions = Dimensions.get('window');
     width = dimensions.width;
@@ -167,10 +167,10 @@ export const scaleFontSize = (size: number): number => {
   } catch (error) {
     // Use fallback dimensions
   }
-  
+
   const scale = Math.min(width / BASE_WIDTH, height / BASE_HEIGHT);
   const newSize = size * scale;
-  
+
   try {
     return Math.round(PixelRatio.roundToNearestPixel(newSize));
   } catch (error) {
@@ -183,7 +183,7 @@ export const scaleFontSize = (size: number): number => {
  */
 export const getResponsivePadding = (base: number = 16): number => {
   const screenSize = getScreenSize();
-  
+
   switch (screenSize) {
     case SCREEN_SIZES.SMALL:
       return base * 0.8;
@@ -208,7 +208,7 @@ export const getResponsiveMargin = (base: number = 8): number => {
  */
 export const getResponsiveBorderRadius = (base: number = 8): number => {
   const screenSize = getScreenSize();
-  
+
   switch (screenSize) {
     case SCREEN_SIZES.SMALL:
       return base * 0.8;
@@ -227,15 +227,15 @@ export const getResponsiveBorderRadius = (base: number = 8): number => {
 export const getGridColumns = (baseColumns: number = 2): number => {
   const screenSize = getScreenSize();
   const orientation = getOrientation();
-  
+
   if (isTablet()) {
     return orientation === ORIENTATIONS.LANDSCAPE ? baseColumns + 2 : baseColumns + 1;
   }
-  
+
   if (orientation === ORIENTATIONS.LANDSCAPE) {
     return baseColumns + 1;
   }
-  
+
   switch (screenSize) {
     case SCREEN_SIZES.SMALL:
       return Math.max(1, baseColumns - 1);
@@ -254,7 +254,7 @@ export const getGridColumns = (baseColumns: number = 2): number => {
 export const getResponsiveDimensions = () => {
   let width = SCREEN_WIDTH;
   let height = SCREEN_HEIGHT;
-  
+
   try {
     const dimensions = Dimensions.get('window');
     width = dimensions.width;
@@ -262,10 +262,10 @@ export const getResponsiveDimensions = () => {
   } catch (error) {
     // Use fallback dimensions
   }
-  
+
   const orientation = getOrientation();
   const screenSize = getScreenSize();
-  
+
   return {
     screenWidth: width,
     screenHeight: height,
@@ -291,7 +291,7 @@ export const responsiveStyles = {
     fontSize: scaleFontSize(baseSize),
     lineHeight: scaleFontSize(baseSize) * 1.4,
   }),
-  
+
   /**
    * Get responsive container styles
    */
@@ -299,7 +299,7 @@ export const responsiveStyles = {
     paddingHorizontal: getResponsivePadding(basePadding),
     paddingVertical: getResponsivePadding(basePadding * 0.75),
   }),
-  
+
   /**
    * Get responsive card styles
    */
@@ -309,7 +309,7 @@ export const responsiveStyles = {
     marginHorizontal: getResponsiveMargin(8),
     marginVertical: getResponsiveMargin(4),
   }),
-  
+
   /**
    * Get responsive button styles
    */
@@ -325,7 +325,7 @@ export const responsiveStyles = {
  */
 export const getLayoutConfig = () => {
   const { orientation, isTablet: tablet } = getResponsiveDimensions();
-  
+
   return {
     // Audio player layout
     audioPlayer: {
@@ -334,14 +334,14 @@ export const getLayoutConfig = () => {
       showVolumeControl: orientation === ORIENTATIONS.LANDSCAPE || tablet,
       compactLayout: orientation === ORIENTATIONS.LANDSCAPE && !tablet,
     },
-    
+
     // Category grid layout
     categoryGrid: {
       columns: getGridColumns(2),
       itemAspectRatio: orientation === ORIENTATIONS.LANDSCAPE ? 1.5 : 1.2,
       spacing: getResponsiveMargin(12),
     },
-    
+
     // Topic list layout
     topicList: {
       itemHeight: orientation === ORIENTATIONS.LANDSCAPE ? 80 : 100,
@@ -349,4 +349,89 @@ export const getLayoutConfig = () => {
       compactMode: orientation === ORIENTATIONS.LANDSCAPE && !tablet,
     },
   };
+};
+/*
+*
+ * Gets the appropriate image size based on screen dimensions
+ */
+export const getOptimalImageSize = (screenWidth: number, screenHeight: number): 'small' | 'medium' | 'large' | 'xlarge' => {
+  const screenArea = screenWidth * screenHeight;
+
+  if (screenArea < 400 * 300) return 'small';
+  if (screenArea < 800 * 600) return 'medium';
+  if (screenArea < 1200 * 900) return 'large';
+  return 'xlarge';
+};
+
+/**
+ * Creates a responsive image URL with appropriate dimensions
+ */
+export const createResponsiveImageUrl = (
+  baseUri: string,
+  width: number = 800,
+  height: number = 600
+): string => {
+  if (!baseUri || typeof baseUri !== 'string') {
+    return baseUri;
+  }
+
+  try {
+    const url = new URL(baseUri);
+
+    // Handle Unsplash URLs specifically
+    if (url.hostname.includes('unsplash.com')) {
+      // Only modify if the URL doesn't already have these parameters
+      if (!url.searchParams.has('w') || !url.searchParams.has('h')) {
+        url.searchParams.set('w', width.toString());
+        url.searchParams.set('h', height.toString());
+        url.searchParams.set('fit', 'crop');
+        url.searchParams.set('crop', 'center');
+        url.searchParams.set('q', '80'); // Set quality to 80% for better performance
+      }
+      return url.toString();
+    }
+
+    return baseUri;
+  } catch (error) {
+    console.warn('Failed to create responsive image URL:', error);
+    return baseUri;
+  }
+};
+
+/**
+ * Generates optimized image URLs for different screen densities
+ */
+export const generateResponsiveImageUrls = (baseUri: string): {
+  small: string;
+  medium: string;
+  large: string;
+  xlarge: string;
+} => {
+  return {
+    small: createResponsiveImageUrl(baseUri, 400, 300),
+    medium: createResponsiveImageUrl(baseUri, 800, 600),
+    large: createResponsiveImageUrl(baseUri, 1200, 900),
+    xlarge: createResponsiveImageUrl(baseUri, 1600, 1200),
+  };
+};
+
+/**
+ * Calculates optimal aspect ratio for background images
+ */
+export const getOptimalAspectRatio = (screenWidth: number, screenHeight: number): number => {
+  const screenRatio = screenWidth / screenHeight;
+
+  // Clamp aspect ratio to reasonable bounds for background images
+  const minRatio = 0.5; // Very tall screens
+  const maxRatio = 2.0; // Very wide screens
+
+  return Math.max(minRatio, Math.min(maxRatio, screenRatio));
+};
+
+/**
+ * Gets responsive image cache key based on dimensions
+ */
+export const getResponsiveImageCacheKey = (baseUri: string, width: number, height: number): string => {
+  const size = getOptimalImageSize(width, height);
+  return `${baseUri}_${size}_${width}x${height}`;
 };

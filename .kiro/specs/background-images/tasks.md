@@ -64,13 +64,23 @@
   - Add proper overlay and contrast management for topic list readability
   - _Requirements: 2.1, 2.2, 1.4, 4.1, 4.2_
 
-- [ ] 6. Enhance AudioPlayerScreen with ambient backgrounds
+- [x] 6. Enhance AudioPlayerScreen with ambient backgrounds
+
+
+
+
+
   - Replace black background with calming, focus-enhancing background images
   - Implement topic-specific backgrounds when available, with ambient fallbacks
   - Ensure audio controls remain clearly visible with proper contrast
   - _Requirements: 2.3, 1.4, 4.1, 4.2, 4.3_
 
-- [ ] 7. Implement responsive design and performance optimization
+- [x] 7. Implement responsive design and performance optimization
+
+
+
+
+
   - Add proper image scaling and aspect ratio handling for all screen sizes
   - Implement image caching and lazy loading for optimal performance
   - Ensure smooth transitions between background images during navigation

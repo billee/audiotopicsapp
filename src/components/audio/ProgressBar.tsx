@@ -159,10 +159,12 @@ const styles = StyleSheet.create({
   } as ViewStyle,
 
   timeText: {
-    color: '#FFFFFF',
+    color: '#1a2332', // Dark navy for better contrast
     fontSize: 14,
     fontWeight: '500',
-    opacity: 0.8,
+    textShadowColor: 'rgba(255, 255, 255, 0.8)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
   } as TextStyle,
 
   progressContainer: {
@@ -190,7 +192,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: 'rgba(0, 0, 0, 0.25)', // Dark semi-transparent track
     borderRadius: 2,
   } as ViewStyle,
 
@@ -199,7 +201,7 @@ const styles = StyleSheet.create({
     top: 8,
     left: 0,
     height: 4,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#059669', // Green for health theme
     borderRadius: 2,
   } as ViewStyle,
 
@@ -208,7 +210,7 @@ const styles = StyleSheet.create({
     top: -8,
     width: 20,
     height: 20,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#059669', // Green for health theme
     borderRadius: 10,
     marginLeft: -10,
     elevation: 6,

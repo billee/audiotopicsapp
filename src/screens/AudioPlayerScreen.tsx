@@ -18,14 +18,17 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useAudioPlayer } from '../hooks';
 import { useProgress } from '../hooks/useProgress';
 import { useResponsiveStyles, useLayoutConfig } from '../hooks/useOrientation';
+import { useBackgroundImage } from '../hooks/useBackgroundImage';
 import {
   AudioControls,
   ProgressBar,
   TopicInfo,
 } from '../components/audio';
-import { LoadingSpinner, ErrorMessage } from '../components/common';
+import { LoadingSpinner, ErrorMessage, BackgroundImage } from '../components/common';
 import { AudioTopic } from '../types';
+import { BackgroundContext } from '../types/backgroundImage';
 import { getResponsivePadding, scaleFontSize } from '../utils/responsive';
+import { getRandomAmbientBackground } from '../assets/backgrounds';
 
 // Navigation types (these should be defined in a navigation types file)
 interface AudioPlayerScreenProps {
@@ -44,9 +47,9 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
   // Mock data for development - in real app this would come from route params
   const mockTopic: AudioTopic = {
     id: '1',
-    title: 'Sample Audio Topic',
-    description: 'This is a sample audio topic for testing the player interface.',
-    categoryId: 'category1',
+    title: 'Sample Science Topic',
+    description: 'This is a sample science topic for testing the player interface.',
+    categoryId: '2', // Use science category ID for testing
     audioUrl: 'https://example.com/audio.mp3',
     duration: 300,
     author: 'Sample Author',
@@ -64,6 +67,10 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
   // Responsive design hooks
   const { isLandscape, isTablet, getResponsiveStyle } = useResponsiveStyles();
   const { audioPlayer } = useLayoutConfig();
+
+  // Background image management
+  const { getBackgroundImage, preloadSpecificImage } = useBackgroundImage();
+  const [ambientBackground, setAmbientBackground] = useState<string | null>(null);
 
   const {
     currentTopic,
@@ -109,6 +116,49 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
 
     loadTopicOnMount();
   }, [topic, loadTopic, startTracking]);
+
+  // Set up ambient background for audio player
+  useEffect(() => {
+    const setupAmbientBackground = async () => {
+      try {
+        // First try to get category-specific background
+        let backgroundUrl: string;
+        
+        const context: BackgroundContext = { 
+          type: 'audio-player',
+          categoryId: topic?.categoryId?.toString(), // Pass categoryId for science-specific backgrounds
+          topicId: topic?.id 
+        };
+        console.log('AudioPlayerScreen - using context:', context);
+        backgroundUrl = getBackgroundImage(context);
+        
+        // If no category-specific background, try topic thumbnail
+        if (!backgroundUrl || backgroundUrl === getBackgroundImage({ type: 'audio-player' })) {
+          if (topic?.thumbnailUrl) {
+            // Use topic thumbnail as background if available
+            backgroundUrl = topic.thumbnailUrl;
+          } else {
+            // Final fallback to random ambient background
+            const randomAmbient = getRandomAmbientBackground();
+            backgroundUrl = randomAmbient.remote;
+          }
+        }
+
+        // Preload the background image for better performance
+        if (backgroundUrl && typeof backgroundUrl === 'string') {
+          await preloadSpecificImage(backgroundUrl);
+        }
+        setAmbientBackground(backgroundUrl);
+      } catch (error) {
+        console.warn('Failed to setup ambient background:', error);
+        // Fallback to default ambient background
+        const defaultAmbient = getRandomAmbientBackground();
+        setAmbientBackground(defaultAmbient.remote);
+      }
+    };
+
+    setupAmbientBackground();
+  }, [topic, getBackgroundImage, preloadSpecificImage]);
 
   // Update progress during playback
   useEffect(() => {
@@ -180,30 +230,43 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
     navigation?.goBack();
   }, [isPlaying, togglePlayback, stopTracking, navigation]);
 
-  const backgroundImage = currentTopic?.thumbnailUrl || topic?.thumbnailUrl;
+  // Get the appropriate background image for audio player
+  const getAudioPlayerBackground = useCallback(() => {
+    // Use the ambient background we set up
+    if (ambientBackground) {
+      return ambientBackground;
+    }
+    
+    // Fallback to topic thumbnail if available
+    if (currentTopic?.thumbnailUrl || topic?.thumbnailUrl) {
+      return currentTopic?.thumbnailUrl || topic?.thumbnailUrl;
+    }
+    
+    // Final fallback to default ambient background
+    const defaultAmbient = getRandomAmbientBackground();
+    return defaultAmbient.remote;
+  }, [ambientBackground, currentTopic?.thumbnailUrl, topic?.thumbnailUrl]);
+
+  const backgroundImageSource = getAudioPlayerBackground();
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       
-      {backgroundImage ? (
-        <ImageBackground
-          source={{ uri: backgroundImage }}
-          style={styles.backgroundImage}
-          resizeMode="cover"
-          testID="background-image"
-        >
-          <View style={styles.overlay}>
-            {renderContent()}
-          </View>
-        </ImageBackground>
-      ) : (
-        <View style={styles.defaultBackground}>
-          {renderContent()}
-        </View>
-      )}
-
-
+      <BackgroundImage
+        source={backgroundImageSource}
+        resizeMode="stretch" // Stretch image to cover full height and width
+        overlay={true}
+        overlayOpacity={0.3} // Lower opacity for ambient feel while ensuring control visibility
+        overlayColors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.5)']} // Gradient overlay for better contrast
+        fallbackColor="#0f0f0f" // Dark fallback for audio player
+        showLoadingState={false} // Disable loading state to prevent UI confusion
+        showErrorState={false} // Disable error state to prevent UI confusion
+        enableResponsiveImages={false} // Disable responsive images to prevent URL issues
+        testID="audio-player-background"
+      >
+        {renderContent()}
+      </BackgroundImage>
     </View>
   );
 
@@ -341,23 +404,7 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
-  } as ViewStyle,
-
-  backgroundImage: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-  } as ViewStyle,
-
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-  } as ViewStyle,
-
-  defaultBackground: {
-    flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#0f0f0f', // Dark fallback for audio player
   } as ViewStyle,
 
   content: {
@@ -398,9 +445,17 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Increased opacity for better visibility over ambient backgrounds
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5, // Android shadow
   } as ViewStyle,
 
   centerContent: {

@@ -101,16 +101,32 @@ const TopicListScreen: React.FC<TopicListScreenProps> = ({ route, navigation }) 
   const { getBackgroundImage } = useBackgroundImage();
 
   // Get contextual background image for this category
-  const backgroundImageUrl = getBackgroundImage({
-    type: 'topic-list',
-    categoryId: categoryId, // Use the numeric ID, mapping will be handled internally
-  });
+  console.log('TopicListScreen categoryId:', categoryId);
+  
+  // TEMPORARY FIX: Force science category to use solid color background
+  let backgroundImageUrl;
+  if (categoryId === '2') {
+    console.log('Science category detected, using solid color background');
+    backgroundImageUrl = null; // This will force fallback color
+  } else {
+    backgroundImageUrl = getBackgroundImage({
+      type: 'topic-list',
+      categoryId: categoryId, // Use the numeric ID, mapping will be handled internally
+    });
+  }
+  console.log('TopicListScreen backgroundImageUrl:', backgroundImageUrl);
 
   // Get optimal overlay opacity for topic list readability
   const overlayOpacity = getOptimalOverlayOpacity({ type: 'topic-list', categoryId });
 
   // Fallback color based on category
-  const fallbackColor = getCategoryColor(categoryId);
+  let fallbackColor = getCategoryColor(categoryId);
+  
+  // Enhanced fallback color for science category
+  if (categoryId === '2') {
+    fallbackColor = '#065f46'; // A nice science-themed green color
+    console.log('Using enhanced science fallback color:', fallbackColor);
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -136,11 +152,15 @@ const TopicListScreen: React.FC<TopicListScreenProps> = ({ route, navigation }) 
       <BackgroundImage
         source={backgroundImageUrl}
         overlay={true}
-        overlayOpacity={overlayOpacity}
-        overlayColors={['rgba(0,0,0,0.2)', 'rgba(0,0,0,0.6)']}
+        overlayOpacity={categoryId === '2' ? 0.3 : overlayOpacity} // Lighter overlay for solid color
+        overlayColors={categoryId === '2' ? 
+          ['rgba(6,95,70,0.1)', 'rgba(6,95,70,0.3)'] : // Science-themed gradient
+          ['rgba(0,0,0,0.2)', 'rgba(0,0,0,0.6)']
+        }
         fallbackColor={fallbackColor}
-        showLoadingState={true}
-        showErrorState={true}
+        showLoadingState={false}
+        showErrorState={false}
+        enableResponsiveImages={false}
         testID="topic-list-background"
       >
         <TopicList

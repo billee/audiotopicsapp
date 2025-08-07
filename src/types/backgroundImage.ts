@@ -31,9 +31,9 @@ export interface BackgroundConfig {
 }
 
 export interface BackgroundImageHook {
-    getBackgroundImage: (context: BackgroundContext) => string;
+    getBackgroundImage: (context: BackgroundContext, enableResponsive?: boolean) => string;
     preloadImages: () => Promise<void>;
-    preloadSpecificImage: (uri: string) => Promise<boolean>;
+    preloadSpecificImage: (uri: string, enableResponsive?: boolean) => Promise<boolean>;
     isImageLoaded: (imageUri: string) => boolean;
     getImageMetadata: (imageUri: string) => BackgroundImageMetadata | null;
 }

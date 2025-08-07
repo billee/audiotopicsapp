@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { Dimensions } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import {
     BackgroundContext,
@@ -14,6 +15,12 @@ import {
     mapCategoryIdToName
 } from '../utils/backgroundImages';
 import { backgroundAssets, getLocalAssetByContext, getRemoteUrlByContext } from '../assets/backgrounds';
+import {
+    getResponsiveDimensions,
+    generateResponsiveImageUrls,
+    getOptimalImageSize,
+    getResponsiveImageCacheKey
+} from '../utils/responsive';
 
 // Default background configuration
 const DEFAULT_BACKGROUND_CONFIG: BackgroundConfig = {
@@ -49,27 +56,64 @@ export const useBackgroundImage = (
     const [imageCache, setImageCache] = useState<BackgroundImageCache>({});
     const preloadedImages = useRef<Set<string>>(new Set());
     const ambientRotationIndex = useRef<number>(0);
+    const [screenDimensions, setScreenDimensions] = useState(() => {
+        try {
+            return Dimensions.get('window');
+        } catch {
+            return { width: 375, height: 812 };
+        }
+    });
 
-    const getBackgroundImage = useCallback((context: BackgroundContext): string | any => {
+    // Track screen dimension changes for responsive images
+    useEffect(() => {
+        const subscription = Dimensions.addEventListener('change', ({ window }) => {
+            setScreenDimensions(window);
+        });
+
+        return () => subscription?.remove();
+    }, []);
+
+    const getBackgroundImage = useCallback((context: BackgroundContext, enableResponsive: boolean = true): string | any => {
         console.log('getBackgroundImage called with context:', context);
 
         // Try to get local asset first, fallback to remote URL
-        const localAsset = getLocalAssetByContext(context.type, context.categoryId);
-        console.log('Local asset for', context.categoryId, ':', localAsset);
+        const localAsset = getLocalAssetByContext(context.type, context.categoryId, context.topicId);
+        console.log('Local asset for topic:', context.topicId, 'category:', context.categoryId, ':', localAsset);
 
         if (localAsset) {
-            console.log('Using local asset for', context.categoryId);
+            console.log('Using local asset for topic:', context.topicId, 'category:', context.categoryId);
             return localAsset;
         }
 
-        // Fallback to remote URL
-        const remoteUrl = getRemoteUrlByContext(context.type, context.categoryId);
-        console.log('Using remote URL for', context.categoryId, ':', remoteUrl);
+        // Get remote URL and make it responsive if enabled
+        const remoteUrl = getRemoteUrlByContext(context.type, context.categoryId, context.topicId);
+        console.log('Using remote URL for topic:', context.topicId, 'category:', context.categoryId, ':', remoteUrl);
+
+        // If no remote URL available, return a fallback
+        if (!remoteUrl) {
+            console.log('No remote URL available, using fallback color');
+            return null; // This will trigger the fallback color in BackgroundImage
+        }
+
+        if (enableResponsive && remoteUrl && remoteUrl.includes('unsplash.com')) {
+            try {
+                const responsiveUrls = generateResponsiveImageUrls(remoteUrl);
+                const optimalSize = getOptimalImageSize(screenDimensions.width, screenDimensions.height);
+                const optimizedUrl = responsiveUrls[optimalSize];
+                console.log('Using responsive URL:', optimizedUrl, 'for size:', optimalSize);
+                return optimizedUrl;
+            } catch (error) {
+                console.warn('Failed to generate responsive URL, using original:', error);
+                return remoteUrl;
+            }
+        }
+
         return remoteUrl;
-    }, []);
+    }, [screenDimensions]);
 
     const preloadImages = useCallback(async (): Promise<void> => {
-        const imagesToPreload: string[] = [
+        // Generate responsive URLs for all images
+        const baseImages = [
             config.categoryScreen.default,
             config.topicList.default,
             config.audioPlayer.default,
@@ -77,22 +121,45 @@ export const useBackgroundImage = (
             ...config.audioPlayer.ambient,
         ];
 
-        const uniqueImages = [...new Set(imagesToPreload)];
+        const uniqueBaseImages = [...new Set(baseImages)];
+        const optimalSize = getOptimalImageSize(screenDimensions.width, screenDimensions.height);
+
+        // Generate responsive URLs for current screen size
+        const imagesToPreload = uniqueBaseImages.map(uri => {
+            if (uri.includes('unsplash.com')) {
+                const responsiveUrls = generateResponsiveImageUrls(uri);
+                return responsiveUrls[optimalSize];
+            }
+            return uri;
+        });
 
         try {
             // Preload critical images first (category screen and default topic list)
-            const criticalImages = [
+            const criticalBaseImages = [
                 config.categoryScreen.default,
                 config.topicList.default,
                 config.audioPlayer.default,
             ];
 
-            const nonCriticalImages = uniqueImages.filter(uri => !criticalImages.includes(uri));
+            const criticalImages = criticalBaseImages.map(uri => {
+                if (uri.includes('unsplash.com')) {
+                    const responsiveUrls = generateResponsiveImageUrls(uri);
+                    return responsiveUrls[optimalSize];
+                }
+                return uri;
+            });
+
+            const nonCriticalImages = imagesToPreload.filter(uri => !criticalImages.includes(uri));
 
             // Preload critical images with high priority
             const criticalPromises = criticalImages
-                .filter(uri => !preloadedImages.current.has(uri))
+                .filter(uri => {
+                    const cacheKey = getResponsiveImageCacheKey(uri, screenDimensions.width, screenDimensions.height);
+                    return !preloadedImages.current.has(cacheKey);
+                })
                 .map(async (uri) => {
+                    const cacheKey = getResponsiveImageCacheKey(uri, screenDimensions.width, screenDimensions.height);
+
                     try {
                         await FastImage.preload([{
                             uri,
@@ -100,11 +167,11 @@ export const useBackgroundImage = (
                             cache: FastImage.cacheControl.immutable,
                         }]);
 
-                        preloadedImages.current.add(uri);
+                        preloadedImages.current.add(cacheKey);
 
                         setImageCache(prev => ({
                             ...prev,
-                            [uri]: {
+                            [cacheKey]: {
                                 loaded: true,
                                 error: false,
                                 lastAccessed: Date.now(),
@@ -113,7 +180,7 @@ export const useBackgroundImage = (
                     } catch (error) {
                         setImageCache(prev => ({
                             ...prev,
-                            [uri]: {
+                            [cacheKey]: {
                                 loaded: false,
                                 error: true,
                                 lastAccessed: Date.now(),
@@ -125,10 +192,18 @@ export const useBackgroundImage = (
             // Wait for critical images to load first
             await Promise.allSettled(criticalPromises);
 
-            // Then preload non-critical images with normal priority
+            // Then preload non-critical images with normal priority (lazy loading)
             const nonCriticalPromises = nonCriticalImages
-                .filter(uri => !preloadedImages.current.has(uri))
-                .map(async (uri) => {
+                .filter(uri => {
+                    const cacheKey = getResponsiveImageCacheKey(uri, screenDimensions.width, screenDimensions.height);
+                    return !preloadedImages.current.has(cacheKey);
+                })
+                .map(async (uri, index) => {
+                    // Stagger non-critical image loading to avoid overwhelming the network
+                    await new Promise(resolve => setTimeout(resolve, index * 100));
+
+                    const cacheKey = getResponsiveImageCacheKey(uri, screenDimensions.width, screenDimensions.height);
+
                     try {
                         await FastImage.preload([{
                             uri,
@@ -136,11 +211,11 @@ export const useBackgroundImage = (
                             cache: FastImage.cacheControl.immutable,
                         }]);
 
-                        preloadedImages.current.add(uri);
+                        preloadedImages.current.add(cacheKey);
 
                         setImageCache(prev => ({
                             ...prev,
-                            [uri]: {
+                            [cacheKey]: {
                                 loaded: true,
                                 error: false,
                                 lastAccessed: Date.now(),
@@ -149,7 +224,7 @@ export const useBackgroundImage = (
                     } catch (error) {
                         setImageCache(prev => ({
                             ...prev,
-                            [uri]: {
+                            [cacheKey]: {
                                 loaded: false,
                                 error: true,
                                 lastAccessed: Date.now(),
@@ -158,16 +233,21 @@ export const useBackgroundImage = (
                     }
                 });
 
-            // Don't wait for non-critical images to complete
+            // Don't wait for non-critical images to complete (lazy loading)
             Promise.allSettled(nonCriticalPromises);
         } catch (error) {
             console.warn('Failed to preload some background images:', error);
         }
-    }, [config]);
+    }, [config, screenDimensions]);
 
     const isImageLoaded = useCallback((imageUri: string): boolean => {
-        return imageCache[imageUri]?.loaded === true;
-    }, [imageCache]);
+        // Check both the direct URI and the responsive cache key
+        const directCheck = imageCache[imageUri]?.loaded === true;
+        const cacheKey = getResponsiveImageCacheKey(imageUri, screenDimensions.width, screenDimensions.height);
+        const responsiveCheck = imageCache[cacheKey]?.loaded === true;
+
+        return directCheck || responsiveCheck;
+    }, [imageCache, screenDimensions]);
 
     const getImageMetadata = useCallback((imageUri: string, context?: BackgroundContext): BackgroundImageMetadata | null => {
         const cacheEntry = imageCache[imageUri];
@@ -180,44 +260,93 @@ export const useBackgroundImage = (
         return createImageMetadata(imageUri, defaultContext);
     }, [imageCache]);
 
-    // Cleanup old cache entries periodically
+    // Enhanced cache cleanup with memory management
     useEffect(() => {
         const cleanupInterval = setInterval(() => {
             const now = Date.now();
-            const maxAge = 30 * 60 * 1000; // 30 minutes
+            const maxAge = 20 * 60 * 1000; // 20 minutes (reduced for better memory management)
+            const maxCacheSize = 50; // Maximum number of cached images
 
             setImageCache(prev => {
                 const cleaned = { ...prev };
-                Object.keys(cleaned).forEach(uri => {
-                    if (now - cleaned[uri].lastAccessed > maxAge) {
+                const entries = Object.entries(cleaned);
+
+                // Remove old entries
+                entries.forEach(([uri, entry]) => {
+                    if (now - entry.lastAccessed > maxAge) {
                         delete cleaned[uri];
                         preloadedImages.current.delete(uri);
                     }
                 });
+
+                // If still too many entries, remove oldest ones
+                const remainingEntries = Object.entries(cleaned);
+                if (remainingEntries.length > maxCacheSize) {
+                    const sortedByAge = remainingEntries.sort((a, b) => a[1].lastAccessed - b[1].lastAccessed);
+                    const toRemove = sortedByAge.slice(0, remainingEntries.length - maxCacheSize);
+
+                    toRemove.forEach(([uri]) => {
+                        delete cleaned[uri];
+                        preloadedImages.current.delete(uri);
+                    });
+                }
+
                 return cleaned;
             });
-        }, 5 * 60 * 1000); // Run every 5 minutes
+
+            // Clear FastImage cache periodically to free memory
+            if (Math.random() < 0.1) { // 10% chance each cleanup cycle
+                FastImage.clearMemoryCache();
+            }
+        }, 3 * 60 * 1000); // Run every 3 minutes (more frequent)
 
         return () => clearInterval(cleanupInterval);
     }, []);
 
-    const preloadSpecificImage = useCallback(async (uri: string): Promise<boolean> => {
-        if (preloadedImages.current.has(uri)) {
+    // Clear cache when screen dimensions change significantly
+    useEffect(() => {
+        const currentSize = getOptimalImageSize(screenDimensions.width, screenDimensions.height);
+
+        // Clear cache entries that don't match current screen size
+        setImageCache(prev => {
+            const cleaned = { ...prev };
+            Object.keys(cleaned).forEach(cacheKey => {
+                if (cacheKey.includes('_') && !cacheKey.includes(`_${currentSize}_`)) {
+                    delete cleaned[cacheKey];
+                    preloadedImages.current.delete(cacheKey);
+                }
+            });
+            return cleaned;
+        });
+    }, [screenDimensions]);
+
+    const preloadSpecificImage = useCallback(async (uri: string, enableResponsive: boolean = true): Promise<boolean> => {
+        // Generate responsive URL if enabled
+        let targetUri = uri;
+        if (enableResponsive && uri.includes('unsplash.com')) {
+            const responsiveUrls = generateResponsiveImageUrls(uri);
+            const optimalSize = getOptimalImageSize(screenDimensions.width, screenDimensions.height);
+            targetUri = responsiveUrls[optimalSize];
+        }
+
+        const cacheKey = getResponsiveImageCacheKey(targetUri, screenDimensions.width, screenDimensions.height);
+
+        if (preloadedImages.current.has(cacheKey)) {
             return true;
         }
 
         try {
             await FastImage.preload([{
-                uri,
+                uri: targetUri,
                 priority: FastImage.priority.high,
                 cache: FastImage.cacheControl.immutable,
             }]);
 
-            preloadedImages.current.add(uri);
+            preloadedImages.current.add(cacheKey);
 
             setImageCache(prev => ({
                 ...prev,
-                [uri]: {
+                [cacheKey]: {
                     loaded: true,
                     error: false,
                     lastAccessed: Date.now(),
@@ -228,7 +357,7 @@ export const useBackgroundImage = (
         } catch (error) {
             setImageCache(prev => ({
                 ...prev,
-                [uri]: {
+                [cacheKey]: {
                     loaded: false,
                     error: true,
                     lastAccessed: Date.now(),
@@ -237,7 +366,7 @@ export const useBackgroundImage = (
 
             return false;
         }
-    }, []);
+    }, [screenDimensions]);
 
     return {
         getBackgroundImage,

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -9,9 +9,11 @@ import {
 import { useCategories } from '../hooks/useCategories';
 import { useResponsiveStyles } from '../hooks/useOrientation';
 import { useBackgroundImage } from '../hooks/useBackgroundImage';
-import { CategoryGrid } from '../components/category';
+import CategoryGrid from '../components/categories/CategoryGrid';
 import { LoadingSpinner, ErrorMessage, BackgroundImage } from '../components/common';
 import { Category } from '../types';
+import { FilipinoCategory } from '../config/categories';
+import CategoryService from '../services/categoryService';
 import { responsiveStyles, scaleFontSize } from '../utils/responsive';
 
 interface CategoryScreenProps {
@@ -19,6 +21,13 @@ interface CategoryScreenProps {
 }
 
 const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
+  // Filipino categories state
+  const [filipinoCategories, setFilipinoCategories] = useState<FilipinoCategory[]>([]);
+  const [layoutConfig, setLayoutConfig] = useState(CategoryService.getInstance().getLayoutConfig());
+  const [filipinoLoading, setFilipinoLoading] = useState(true);
+  const [filipinoError, setFilipinoError] = useState<string | null>(null);
+
+  // Legacy categories hook for backward compatibility
   const {
     categories,
     loading,
@@ -37,14 +46,63 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
     isTablet,
     safeAreaPadding,
     contentPadding,
-    layoutConfig,
     getResponsiveStyle,
   } = useResponsiveStyles();
 
   // Background image hook
   const { getBackgroundImage, preloadImages } = useBackgroundImage();
 
-  // Handle category selection
+  // Load Filipino categories
+  const loadFilipinoCategories = useCallback(async () => {
+    try {
+      setFilipinoLoading(true);
+      setFilipinoError(null);
+      
+      const categoryService = CategoryService.getInstance();
+      const categories = categoryService.getAllFilipinoCategories();
+      const config = categoryService.getLayoutConfig();
+      
+      // Simulate network delay for consistency with legacy behavior
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      setFilipinoCategories(categories);
+      setLayoutConfig(config);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load categories';
+      setFilipinoError(errorMessage);
+      console.error('Error loading Filipino categories:', err);
+    } finally {
+      setFilipinoLoading(false);
+    }
+  }, []);
+
+  // Handle Filipino category selection
+  const handleFilipinoSelect = useCallback((category: FilipinoCategory) => {
+    // Update legacy selected category for backward compatibility
+    selectCategory(category.id);
+    
+    // Navigate to TopicListScreen if navigation is available
+    if (navigation) {
+      // Convert Filipino category to legacy format for navigation
+      const legacyCategory: Category = {
+        id: category.id,
+        name: category.name,
+        description: category.description,
+        color: category.backgroundColor,
+        topicCount: 0, // This would be calculated based on actual topics
+        iconUrl: category.icon,
+        backgroundImageUrl: category.backgroundImage
+      };
+      
+      navigation.navigate('TopicList', { 
+        category: legacyCategory,
+        categoryId: category.id,
+        categoryName: category.name 
+      });
+    }
+  }, [selectCategory, navigation]);
+
+  // Handle category selection (legacy support)
   const handleCategorySelect = useCallback((category: Category) => {
     selectCategory(category.id);
     
@@ -60,16 +118,28 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
 
   // Handle retry on error
   const handleRetry = useCallback(() => {
+    setFilipinoError(null);
+    loadFilipinoCategories();
+    // Also retry legacy categories for backward compatibility
     clearError();
     loadCategories();
-  }, [clearError, loadCategories]);
+  }, [loadFilipinoCategories, clearError, loadCategories]);
 
   // Handle pull-to-refresh
   const handleRefresh = useCallback(() => {
+    loadFilipinoCategories();
+    // Also refresh legacy categories for backward compatibility
     refreshCategories();
-  }, [refreshCategories]);
+  }, [loadFilipinoCategories, refreshCategories]);
 
-  // Auto-load categories on mount
+  // Auto-load Filipino categories on mount
+  useEffect(() => {
+    if (filipinoCategories.length === 0 && !filipinoLoading && !filipinoError) {
+      loadFilipinoCategories();
+    }
+  }, [filipinoCategories.length, filipinoLoading, filipinoError, loadFilipinoCategories]);
+
+  // Auto-load legacy categories on mount (for backward compatibility)
   useEffect(() => {
     if (!hasCategories && !loading && !error) {
       loadCategories();
@@ -85,7 +155,7 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
   const backgroundImageUri = getBackgroundImage({ type: 'category-screen' });
 
   // Render loading state
-  if (loading && !hasCategories) {
+  if (filipinoLoading && filipinoCategories.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
         <BackgroundImage
@@ -96,14 +166,14 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
           fallbackColor="#1a1a1a"
           testID="category-screen-background"
         >
-          <LoadingSpinner message="Loading categories..." />
+          <LoadingSpinner message="Loading Filipino categories..." />
         </BackgroundImage>
       </SafeAreaView>
     );
   }
 
   // Render error state
-  if (error && !hasCategories) {
+  if (filipinoError && filipinoCategories.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
         <BackgroundImage
@@ -115,7 +185,7 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
           testID="category-screen-background"
         >
           <ErrorMessage
-            message={error}
+            message={filipinoError}
             onRetry={handleRetry}
             retryText="Reload Categories"
           />
@@ -125,7 +195,7 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
   }
 
   // Render empty state
-  if (isEmpty) {
+  if (filipinoCategories.length === 0 && !filipinoLoading) {
     return (
       <SafeAreaView style={styles.container}>
         <BackgroundImage
@@ -137,10 +207,10 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
           testID="category-screen-background"
         >
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyTitle}>No Categories Available</Text>
+            <Text style={styles.emptyTitle}>Walang Available na Categories</Text>
             <Text style={styles.emptyMessage}>
-              There are no audio topic categories available at the moment.
-              Please check back later.
+              Walang mga audio topic categories na available sa ngayon.
+              Subukan ulit mamaya.
             </Text>
           </View>
         </BackgroundImage>
@@ -170,22 +240,22 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
             styles.title,
             getResponsiveStyle(styles.titlePortrait, styles.titleLandscape)
           ]}>
-            Audio Topics
+            Mga Audio Topics
           </Text>
           <Text style={[
             styles.subtitle,
             getResponsiveStyle(styles.subtitlePortrait, styles.subtitleLandscape)
           ]}>
-            Discover {categories.length} categories of engaging audio content
+            Tuklasin ang {filipinoCategories.length} kategorya ng mga nakaaantig na audio content
           </Text>
         </View>
         
         <View style={styles.content}>
           <CategoryGrid
-            categories={categories}
-            onCategorySelect={handleCategorySelect}
-            refreshing={loading}
-            onRefresh={handleRefresh}
+            categories={filipinoCategories}
+            onCategorySelect={handleFilipinoSelect}
+            layoutConfig={layoutConfig}
+            testID="filipino-category-grid"
           />
         </View>
       </BackgroundImage>

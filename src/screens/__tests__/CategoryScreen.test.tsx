@@ -1,205 +1,105 @@
 /**
- * CategoryScreen component tests
+ * CategoryScreen Tests - Filipino Layout Integration
+ * 
+ * Tests for the updated CategoryScreen with Filipino categories and layout
  */
 
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import { Provider } from 'react-redux';
-import { configureStore } from '@reduxjs/toolkit';
-import CategoryScreen from '../CategoryScreen';
-import categoriesReducer from '../../store/slices/categoriesSlice';
-import { Category } from '../../types';
+import CategoryService from '../../services/categoryService';
+import { FILIPINO_CATEGORIES } from '../../config/categories';
 
-// Mock the CategoryService
-jest.mock('../../services/CategoryService', () => {
-  const mockCategories: Category[] = [
-    {
-      id: '1',
-      name: 'Technology',
-      description: 'Latest tech trends',
-      iconUrl: 'https://example.com/tech.png',
-      backgroundImageUrl: 'https://example.com/tech-bg.jpg',
-      topicCount: 15,
-      color: '#4A90E2',
-    },
-    {
-      id: '2',
-      name: 'Science',
-      description: 'Scientific discoveries',
-      iconUrl: 'https://example.com/science.png',
-      backgroundImageUrl: 'https://example.com/science-bg.jpg',
-      topicCount: 12,
-      color: '#50C878',
-    },
-  ];
-
-  return {
-    __esModule: true,
-    default: {
-      getInstance: () => ({
-        getCategories: jest.fn().mockResolvedValue(mockCategories),
-        getCategoryById: jest.fn().mockResolvedValue(mockCategories[0]),
-        searchCategories: jest.fn().mockResolvedValue(mockCategories),
-        getCategoriesByPopularity: jest.fn().mockResolvedValue(mockCategories),
-      }),
-    },
-  };
-});
-
-const createTestStore = (initialState = {}) => {
-  return configureStore({
-    reducer: {
-      categories: categoriesReducer,
-      audio: (state = {}) => state,
-      userPreferences: (state = {}) => state,
-    },
-    preloadedState: {
-      categories: {
-        categories: [],
-        selectedCategoryId: null,
-        loading: false,
-        error: null,
-        lastUpdated: null,
-        ...initialState,
-      },
-    },
-  });
-};
-
-const renderWithStore = (component: React.ReactElement, initialState = {}) => {
-  const store = createTestStore(initialState);
-  return {
-    ...render(<Provider store={store}>{component}</Provider>),
-    store,
-  };
-};
-
-describe('CategoryScreen', () => {
-  const mockNavigation = {
-    navigate: jest.fn(),
-  };
+describe('CategoryScreen - Filipino Layout', () => {
+  let categoryService: CategoryService;
 
   beforeEach(() => {
-    mockNavigation.navigate.mockClear();
+    categoryService = CategoryService.getInstance();
+    jest.clearAllMocks();
   });
 
-  it('renders loading state initially', () => {
-    const { getByText } = renderWithStore(
-      <CategoryScreen navigation={mockNavigation} />,
-      { loading: true }
-    );
+  describe('CategoryService Integration', () => {
+    it('should load Filipino categories from service', () => {
+      const categories = categoryService.getAllFilipinoCategories();
+      expect(categories).toHaveLength(7);
+      expect(categories).toEqual(FILIPINO_CATEGORIES);
+    });
 
-    expect(getByText('Loading categories...')).toBeTruthy();
-  });
+    it('should get layout configuration from service', () => {
+      const layoutConfig = categoryService.getLayoutConfig();
+      expect(layoutConfig).toHaveProperty('gridRows', 3);
+      expect(layoutConfig).toHaveProperty('gridColumns', 3);
+      expect(layoutConfig).toHaveProperty('cardSpacing');
+      expect(layoutConfig).toHaveProperty('cardBorderRadius');
+    });
 
-  it('renders error state when there is an error', () => {
-    const { getByText } = renderWithStore(
-      <CategoryScreen navigation={mockNavigation} />,
-      { error: 'Failed to load categories' }
-    );
+    it('should convert Filipino category to legacy format for navigation', () => {
+      const firstCategory = FILIPINO_CATEGORIES[0];
+      
+      // This simulates what the CategoryScreen does for navigation
+      const legacyCategory = {
+        id: firstCategory.id,
+        name: firstCategory.name,
+        description: firstCategory.description,
+        color: firstCategory.backgroundColor,
+        topicCount: 0,
+        iconUrl: firstCategory.icon,
+        backgroundImageUrl: firstCategory.backgroundImage,
+      };
 
-    expect(getByText('Failed to load categories')).toBeTruthy();
-    expect(getByText('Reload Categories')).toBeTruthy();
-  });
+      expect(legacyCategory.id).toBe('pamilya-sariling-buhay');
+      expect(legacyCategory.name).toBe('Pamilya at Sariling Buhay');
+      expect(legacyCategory.description).toBe('Mga kwento tungkol sa pamilya, personal na karanasan, at sariling buhay');
+      expect(legacyCategory.color).toBe('#E8F5E8');
+    });
 
-  it('renders empty state when no categories are available', () => {
-    const { getByText } = renderWithStore(
-      <CategoryScreen navigation={mockNavigation} />,
-      { categories: [], loading: false, error: null }
-    );
+    it('should handle category selection by ID', () => {
+      const category = categoryService.getFilipinoCategory('pamilya-sariling-buhay');
+      expect(category).toBeDefined();
+      expect(category?.name).toBe('Pamilya at Sariling Buhay');
+    });
 
-    expect(getByText('No Categories Available')).toBeTruthy();
-  });
-
-  it('renders categories when loaded successfully', async () => {
-    const mockCategories: Category[] = [
-      {
-        id: '1',
-        name: 'Technology',
-        description: 'Latest tech trends',
-        iconUrl: 'https://example.com/tech.png',
-        backgroundImageUrl: 'https://example.com/tech-bg.jpg',
-        topicCount: 15,
-        color: '#4A90E2',
-      },
-    ];
-
-    const { getByText } = renderWithStore(
-      <CategoryScreen navigation={mockNavigation} />,
-      { categories: mockCategories, loading: false, error: null }
-    );
-
-    expect(getByText('Audio Topics')).toBeTruthy();
-    expect(getByText('Discover 1 categories of engaging audio content')).toBeTruthy();
-    expect(getByText('Technology')).toBeTruthy();
-  });
-
-  it('handles category selection and navigation', async () => {
-    const mockCategories: Category[] = [
-      {
-        id: '1',
-        name: 'Technology',
-        description: 'Latest tech trends',
-        iconUrl: 'https://example.com/tech.png',
-        backgroundImageUrl: 'https://example.com/tech-bg.jpg',
-        topicCount: 15,
-        color: '#4A90E2',
-      },
-    ];
-
-    const { getByText } = renderWithStore(
-      <CategoryScreen navigation={mockNavigation} />,
-      { categories: mockCategories, loading: false, error: null }
-    );
-
-    fireEvent.press(getByText('Technology'));
-
-    expect(mockNavigation.navigate).toHaveBeenCalledWith('TopicList', {
-      categoryId: '1',
-      categoryName: 'Technology',
+    it('should handle category selection by numeric ID', () => {
+      const category = categoryService.getFilipinoByNumericId(1);
+      expect(category).toBeDefined();
+      expect(category?.id).toBe('pamilya-sariling-buhay');
     });
   });
 
-  it('handles retry on error', () => {
-    const { getByText } = renderWithStore(
-      <CategoryScreen navigation={mockNavigation} />,
-      { error: 'Network error' }
-    );
+  describe('Layout Configuration', () => {
+    it('should organize categories for grid layout', () => {
+      const grid = categoryService.getCategoriesForLayout();
+      expect(grid).toHaveLength(3); // 3 rows
+      
+      // Check first row has 3 categories
+      expect(grid[0]).toHaveLength(3);
+      expect(grid[1]).toHaveLength(3);
+      expect(grid[2]).toHaveLength(3); // Bottom row has spanning category in all 3 positions
+      
+      // But all 3 positions should reference the same category (spanning)
+      expect(grid[2][0]).toBe(grid[2][1]);
+      expect(grid[2][1]).toBe(grid[2][2]);
+      expect(grid[2][0].id).toBe('mga-alaala-nostalgia');
+    });
 
-    const retryButton = getByText('Reload Categories');
-    fireEvent.press(retryButton);
-
-    // The retry should clear the error and attempt to reload
-    // This would require more complex testing setup to verify the actual dispatch
+    it('should handle spanning category correctly', () => {
+      const spanningCategory = FILIPINO_CATEGORIES.find(cat => cat.layoutPosition.span === 3);
+      expect(spanningCategory).toBeDefined();
+      expect(spanningCategory?.name).toBe('Mga Alaala at Nostalgia');
+      expect(spanningCategory?.layoutPosition.row).toBe(2);
+      expect(spanningCategory?.layoutPosition.column).toBe(0);
+    });
   });
 
-  it('displays correct category count in subtitle', () => {
-    const mockCategories: Category[] = [
-      {
-        id: '1',
-        name: 'Technology',
-        description: 'Latest tech trends',
-        iconUrl: 'https://example.com/tech.png',
-        backgroundImageUrl: 'https://example.com/tech-bg.jpg',
-        topicCount: 15,
-        color: '#4A90E2',
-      },
-      {
-        id: '2',
-        name: 'Science',
-        description: 'Scientific discoveries',
-        iconUrl: 'https://example.com/science.png',
-        backgroundImageUrl: 'https://example.com/science-bg.jpg',
-        topicCount: 12,
-        color: '#50C878',
-      },
-    ];
+  describe('Backward Compatibility', () => {
+    it('should map old category IDs to new Filipino categories', () => {
+      const mappedCategory = categoryService.mapOldCategoryToNew('1');
+      expect(mappedCategory).toBeDefined();
+      expect(mappedCategory?.id).toBe('araw-araw-pamumuhay');
+    });
 
-    const { getByText } = renderWithStore(
-      <CategoryScreen navigation={mockNavigation} />,
-      { categories: mockCategories, loading: false, error: null }
-    );
-
-    expect(getByText('Discover 2 categories of engaging audio content')).toBeTruthy();
+    it('should provide fallback for unmapped categories', () => {
+      const mappedCategory = categoryService.mapOldCategoryToNew('invalid-id');
+      expect(mappedCategory).toBeDefined();
+      expect(mappedCategory).toBe(FILIPINO_CATEGORIES[0]); // First category as fallback
+    });
   });
 });

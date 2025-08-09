@@ -20,7 +20,8 @@ export const categoryScreenBackgrounds = {
 };
 
 // Topic List Backgrounds (Category-specific)
-export const topicListBackgrounds = {
+// Legacy English categories - maintained for backward compatibility
+export const legacyTopicListBackgrounds = {
     technology: {
         local: require('./topic-list/technology.png'),
         remote: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=600&fit=crop&crop=center',
@@ -56,6 +57,64 @@ export const topicListBackgrounds = {
         remote: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&h=600&fit=crop&crop=center',
         description: 'Generic educational background suitable for any topic category'
     }
+};
+
+// Filipino Categories Background Mappings
+export const filipinoTopicListBackgrounds = {
+    'pamilya-sariling-buhay': {
+        local: require('./topic-list/health.png'), // Family/personal life maps to health imagery
+        remote: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=600&fit=crop&crop=center',
+        description: 'Warm, family-oriented imagery for personal and family life topics',
+        fallbackColor: '#E8F5E8'
+    },
+    'araw-araw-pamumuhay': {
+        local: require('./topic-list/health.png'), // Daily life uses health imagery as safe fallback
+        remote: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&h=600&fit=crop&crop=center',
+        description: 'Everyday life and local culture imagery',
+        fallbackColor: '#FFF4E6'
+    },
+    'balita-kasalukuyang-pangyayari': {
+        local: require('./topic-list/technology.png'), // News/current events uses technology imagery as safe fallback
+        remote: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop&crop=center',
+        description: 'News and current events imagery with professional elements',
+        fallbackColor: '#E6F3FF'
+    },
+    'damdamin-relasyon': {
+        local: require('./topic-list/health.png'), // Emotions/relationships uses health imagery as safe fallback
+        remote: 'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=800&h=600&fit=crop&crop=center',
+        description: 'Emotional and relationship-focused imagery with artistic elements',
+        fallbackColor: '#FFE6F0'
+    },
+    'mga-plano-pagkakataon': {
+        local: require('./topic-list/technology.png'), // Plans/opportunities maps to technology (future-focused)
+        remote: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=600&fit=crop&crop=center',
+        description: 'Future plans and opportunities imagery with modern elements',
+        fallbackColor: '#F0E6FF'
+    },
+    'libangan-kasiyahan': {
+        local: require('./topic-list/health.png'), // Entertainment/fun uses health imagery as safe fallback
+        remote: 'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=800&h=600&fit=crop&crop=center',
+        description: 'Entertainment and fun imagery with colorful, joyful elements',
+        fallbackColor: '#FFEB3B'
+    },
+    'mga-alaala-nostalgia': {
+        local: require('./topic-list/health.png'), // Memories/nostalgia uses health imagery as safe fallback
+        remote: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&h=600&fit=crop&crop=center',
+        description: 'Nostalgic and memory-focused imagery with historical elements',
+        fallbackColor: '#E8E8E8'
+    },
+    default: {
+        local: require('./topic-list/health.png'), // Use health.png as safe default
+        remote: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&h=600&fit=crop&crop=center',
+        description: 'Generic educational background suitable for any Filipino topic category',
+        fallbackColor: '#F5F5F5'
+    }
+};
+
+// Combined topic list backgrounds for backward compatibility
+export const topicListBackgrounds = {
+    ...legacyTopicListBackgrounds,
+    ...filipinoTopicListBackgrounds
 };
 
 // Audio Player Backgrounds - Topic Specific Configuration
@@ -98,13 +157,13 @@ export const topicAudioPlayerBackgrounds = [
 ];
 
 // Audio Player Backgrounds - Category Fallbacks
-export const audioPlayerBackgrounds = {
+export const audioPlayerBackgrounds: { [key: string]: any } = {
     default: {
         local: null, // Temporarily disabled - using remote only
         remote: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=600&fit=crop&crop=center',
         description: 'Calming, focus-enhancing background for audio listening experience'
     },
-    // Category-specific fallbacks - using only verified working images
+    // Legacy English category fallbacks - using only verified working images
     science: {
         local: require('./topic-list/health.png'),
         remote: null,
@@ -115,7 +174,7 @@ export const audioPlayerBackgrounds = {
         remote: null,
         description: 'Technology background'
     },
-    // All other categories use health.png as safe fallback
+    // All other legacy categories use health.png as safe fallback
     history: {
         local: require('./topic-list/health.png'),
         remote: null,
@@ -135,6 +194,49 @@ export const audioPlayerBackgrounds = {
         local: require('./topic-list/health.png'),
         remote: null,
         description: 'Health background'
+    },
+    // Filipino category fallbacks
+    'pamilya-sariling-buhay': {
+        local: require('./topic-list/health.png'),
+        remote: null,
+        description: 'Family and personal life background',
+        fallbackColor: '#E8F5E8'
+    },
+    'araw-araw-pamumuhay': {
+        local: require('./topic-list/health.png'), // Use health.png as safe fallback
+        remote: null,
+        description: 'Daily life and local culture background',
+        fallbackColor: '#FFF4E6'
+    },
+    'balita-kasalukuyang-pangyayari': {
+        local: require('./topic-list/technology.png'),
+        remote: null,
+        description: 'News and current events background',
+        fallbackColor: '#E6F3FF'
+    },
+    'damdamin-relasyon': {
+        local: require('./topic-list/health.png'),
+        remote: null,
+        description: 'Emotions and relationships background',
+        fallbackColor: '#FFE6F0'
+    },
+    'mga-plano-pagkakataon': {
+        local: require('./topic-list/technology.png'),
+        remote: null,
+        description: 'Plans and opportunities background',
+        fallbackColor: '#F0E6FF'
+    },
+    'libangan-kasiyahan': {
+        local: require('./topic-list/health.png'),
+        remote: null,
+        description: 'Entertainment and fun background',
+        fallbackColor: '#FFEB3B'
+    },
+    'mga-alaala-nostalgia': {
+        local: require('./topic-list/health.png'),
+        remote: null,
+        description: 'Memories and nostalgia background',
+        fallbackColor: '#E8E8E8'
     },
     ambient: [
         {
@@ -176,8 +278,15 @@ export const getRemoteUrlByContext = (context: string, categoryId?: string, topi
             return categoryScreenBackgrounds.default.remote;
         case 'topic-list':
             if (categoryId) {
-                // Map numeric category IDs to category names
-                const categoryMapping: { [key: string]: string } = {
+                // First check if it's a Filipino category ID (string format)
+                if (filipinoTopicListBackgrounds[categoryId as keyof typeof filipinoTopicListBackgrounds]) {
+                    const url = filipinoTopicListBackgrounds[categoryId as keyof typeof filipinoTopicListBackgrounds].remote;
+                    console.log('Found Filipino background URL for', categoryId, ':', url);
+                    return url || filipinoTopicListBackgrounds.default.remote;
+                }
+
+                // Map numeric category IDs to legacy category names for backward compatibility
+                const legacyCategoryMapping: { [key: string]: string } = {
                     '1': 'technology',
                     '2': 'science',
                     '3': 'history',
@@ -186,22 +295,41 @@ export const getRemoteUrlByContext = (context: string, categoryId?: string, topi
                     '6': 'health',
                 };
 
-                // Use mapped name if it's a numeric ID, otherwise use as-is
-                const categoryName = categoryMapping[categoryId] || categoryId;
-                console.log('Mapped categoryId', categoryId, 'to categoryName:', categoryName);
+                // Map numeric category IDs to Filipino category IDs
+                const filipinoCategoryMapping: { [key: string]: string } = {
+                    '1': 'pamilya-sariling-buhay',
+                    '2': 'araw-araw-pamumuhay',
+                    '3': 'balita-kasalukuyang-pangyayari',
+                    '4': 'damdamin-relasyon',
+                    '5': 'mga-plano-pagkakataon',
+                    '6': 'libangan-kasiyahan',
+                    '7': 'mga-alaala-nostalgia',
+                };
 
-                if (topicListBackgrounds[categoryName as keyof typeof topicListBackgrounds]) {
-                    const url = topicListBackgrounds[categoryName as keyof typeof topicListBackgrounds].remote;
-                    console.log('Found background URL for', categoryName, ':', url);
+                // Try Filipino mapping first
+                const filipinoCategoryName = filipinoCategoryMapping[categoryId];
+                if (filipinoCategoryName && filipinoTopicListBackgrounds[filipinoCategoryName as keyof typeof filipinoTopicListBackgrounds]) {
+                    const url = filipinoTopicListBackgrounds[filipinoCategoryName as keyof typeof filipinoTopicListBackgrounds].remote;
+                    console.log('Found Filipino background URL for numeric ID', categoryId, 'mapped to', filipinoCategoryName, ':', url);
+                    return url || filipinoTopicListBackgrounds.default.remote;
+                }
+
+                // Fallback to legacy mapping
+                const legacyCategoryName = legacyCategoryMapping[categoryId] || categoryId;
+                console.log('Mapped categoryId', categoryId, 'to legacy categoryName:', legacyCategoryName);
+
+                if (legacyTopicListBackgrounds[legacyCategoryName as keyof typeof legacyTopicListBackgrounds]) {
+                    const url = legacyTopicListBackgrounds[legacyCategoryName as keyof typeof legacyTopicListBackgrounds].remote;
+                    console.log('Found legacy background URL for', legacyCategoryName, ':', url);
 
                     // If remote URL is null, return default
                     if (!url) {
-                        console.log('Remote URL is null for', categoryName, 'using default');
+                        console.log('Remote URL is null for', legacyCategoryName, 'using default');
                         return topicListBackgrounds.default.remote;
                     }
                     return url;
                 } else {
-                    console.log('No background found for', categoryName, 'using default');
+                    console.log('No background found for', legacyCategoryName, 'using default');
                 }
             }
             return topicListBackgrounds.default.remote;
@@ -231,7 +359,32 @@ export const getTopicAudioPlayerBackground = (topicId?: string, categoryId?: str
 
     // Fallback to category-specific background
     if (categoryId) {
-        const categoryMapping: { [key: string]: string } = {
+        // First check if it's a Filipino category ID (string format)
+        if (audioPlayerBackgrounds[categoryId as keyof typeof audioPlayerBackgrounds]) {
+            console.log('Using Filipino category background for:', categoryId);
+            return audioPlayerBackgrounds[categoryId as keyof typeof audioPlayerBackgrounds].local;
+        }
+
+        // Map numeric category IDs to Filipino category IDs
+        const filipinoCategoryMapping: { [key: string]: string } = {
+            '1': 'pamilya-sariling-buhay',
+            '2': 'araw-araw-pamumuhay',
+            '3': 'balita-kasalukuyang-pangyayari',
+            '4': 'damdamin-relasyon',
+            '5': 'mga-plano-pagkakataon',
+            '6': 'libangan-kasiyahan',
+            '7': 'mga-alaala-nostalgia',
+        };
+
+        // Try Filipino mapping first
+        const filipinoCategoryName = filipinoCategoryMapping[categoryId];
+        if (filipinoCategoryName && audioPlayerBackgrounds[filipinoCategoryName as keyof typeof audioPlayerBackgrounds]) {
+            console.log('Using Filipino category background for numeric ID', categoryId, 'mapped to', filipinoCategoryName);
+            return audioPlayerBackgrounds[filipinoCategoryName as keyof typeof audioPlayerBackgrounds].local;
+        }
+
+        // Fallback to legacy category mapping
+        const legacyCategoryMapping: { [key: string]: string } = {
             '1': 'technology',
             '2': 'science',
             '3': 'history',
@@ -240,11 +393,11 @@ export const getTopicAudioPlayerBackground = (topicId?: string, categoryId?: str
             '6': 'health',
         };
 
-        const categoryName = categoryMapping[categoryId] || categoryId;
-        console.log('Using category fallback for:', categoryName);
+        const legacyCategoryName = legacyCategoryMapping[categoryId] || categoryId;
+        console.log('Using legacy category fallback for:', legacyCategoryName);
 
-        if (audioPlayerBackgrounds[categoryName as keyof typeof audioPlayerBackgrounds]) {
-            return audioPlayerBackgrounds[categoryName as keyof typeof audioPlayerBackgrounds].local;
+        if (audioPlayerBackgrounds[legacyCategoryName as keyof typeof audioPlayerBackgrounds]) {
+            return audioPlayerBackgrounds[legacyCategoryName as keyof typeof audioPlayerBackgrounds].local;
         }
     }
 
@@ -268,7 +421,30 @@ export const getTopicAudioPlayerRemoteUrl = (topicId?: string, categoryId?: stri
 
     // Fallback to category-specific background
     if (categoryId) {
-        const categoryMapping: { [key: string]: string } = {
+        // First check if it's a Filipino category ID (string format)
+        if (audioPlayerBackgrounds[categoryId as keyof typeof audioPlayerBackgrounds]) {
+            return audioPlayerBackgrounds[categoryId as keyof typeof audioPlayerBackgrounds].remote || audioPlayerBackgrounds.default.remote;
+        }
+
+        // Map numeric category IDs to Filipino category IDs
+        const filipinoCategoryMapping: { [key: string]: string } = {
+            '1': 'pamilya-sariling-buhay',
+            '2': 'araw-araw-pamumuhay',
+            '3': 'balita-kasalukuyang-pangyayari',
+            '4': 'damdamin-relasyon',
+            '5': 'mga-plano-pagkakataon',
+            '6': 'libangan-kasiyahan',
+            '7': 'mga-alaala-nostalgia',
+        };
+
+        // Try Filipino mapping first
+        const filipinoCategoryName = filipinoCategoryMapping[categoryId];
+        if (filipinoCategoryName && audioPlayerBackgrounds[filipinoCategoryName as keyof typeof audioPlayerBackgrounds]) {
+            return audioPlayerBackgrounds[filipinoCategoryName as keyof typeof audioPlayerBackgrounds].remote || audioPlayerBackgrounds.default.remote;
+        }
+
+        // Fallback to legacy category mapping
+        const legacyCategoryMapping: { [key: string]: string } = {
             '1': 'technology',
             '2': 'science',
             '3': 'history',
@@ -277,7 +453,7 @@ export const getTopicAudioPlayerRemoteUrl = (topicId?: string, categoryId?: stri
             '6': 'health',
         };
 
-        const categoryName = categoryMapping[categoryId] || categoryId;
+        const categoryName = legacyCategoryMapping[categoryId] || categoryId;
 
         if (audioPlayerBackgrounds[categoryName as keyof typeof audioPlayerBackgrounds]) {
             return audioPlayerBackgrounds[categoryName as keyof typeof audioPlayerBackgrounds].remote || audioPlayerBackgrounds.default.remote;
@@ -295,8 +471,30 @@ export const getLocalAssetByContext = (context: string, categoryId?: string, top
             return categoryScreenBackgrounds.default.local;
         case 'topic-list':
             if (categoryId) {
-                // Map numeric category IDs to category names
-                const categoryMapping: { [key: string]: string } = {
+                // First check if it's a Filipino category ID (string format)
+                if (filipinoTopicListBackgrounds[categoryId as keyof typeof filipinoTopicListBackgrounds]) {
+                    return filipinoTopicListBackgrounds[categoryId as keyof typeof filipinoTopicListBackgrounds].local;
+                }
+
+                // Map numeric category IDs to Filipino category IDs
+                const filipinoCategoryMapping: { [key: string]: string } = {
+                    '1': 'pamilya-sariling-buhay',
+                    '2': 'araw-araw-pamumuhay',
+                    '3': 'balita-kasalukuyang-pangyayari',
+                    '4': 'damdamin-relasyon',
+                    '5': 'mga-plano-pagkakataon',
+                    '6': 'libangan-kasiyahan',
+                    '7': 'mga-alaala-nostalgia',
+                };
+
+                // Try Filipino mapping first
+                const filipinoCategoryName = filipinoCategoryMapping[categoryId];
+                if (filipinoCategoryName && filipinoTopicListBackgrounds[filipinoCategoryName as keyof typeof filipinoTopicListBackgrounds]) {
+                    return filipinoTopicListBackgrounds[filipinoCategoryName as keyof typeof filipinoTopicListBackgrounds].local;
+                }
+
+                // Fallback to legacy category mapping
+                const legacyCategoryMapping: { [key: string]: string } = {
                     '1': 'technology',
                     '2': 'science',
                     '3': 'history',
@@ -306,10 +504,10 @@ export const getLocalAssetByContext = (context: string, categoryId?: string, top
                 };
 
                 // Use mapped name if it's a numeric ID, otherwise use as-is
-                const categoryName = categoryMapping[categoryId] || categoryId;
+                const categoryName = legacyCategoryMapping[categoryId] || categoryId;
 
-                if (topicListBackgrounds[categoryName as keyof typeof topicListBackgrounds]) {
-                    return topicListBackgrounds[categoryName as keyof typeof topicListBackgrounds].local;
+                if (legacyTopicListBackgrounds[categoryName as keyof typeof legacyTopicListBackgrounds]) {
+                    return legacyTopicListBackgrounds[categoryName as keyof typeof legacyTopicListBackgrounds].local;
                 }
             }
             return topicListBackgrounds.default.local;
@@ -350,4 +548,94 @@ export const getTopicBackgroundsByCategory = (categoryId: string) => {
 // Get topic background info
 export const getTopicBackgroundInfo = (topicId: string) => {
     return topicAudioPlayerBackgrounds.find(item => item.topicId === topicId);
+};
+
+// Filipino Category Background Helper Functions
+
+// Get Filipino category background with fallback color support
+export const getFilipinoCategoryBackground = (categoryId: string): { local: any; remote: string; fallbackColor: string } => {
+    if (filipinoTopicListBackgrounds[categoryId as keyof typeof filipinoTopicListBackgrounds]) {
+        const bg = filipinoTopicListBackgrounds[categoryId as keyof typeof filipinoTopicListBackgrounds];
+        return {
+            local: bg.local,
+            remote: bg.remote,
+            fallbackColor: bg.fallbackColor
+        };
+    }
+
+    // Return default with fallback color
+    return {
+        local: filipinoTopicListBackgrounds.default.local,
+        remote: filipinoTopicListBackgrounds.default.remote,
+        fallbackColor: filipinoTopicListBackgrounds.default.fallbackColor
+    };
+};
+
+// Get fallback color for a Filipino category
+export const getFilipinoCategoryFallbackColor = (categoryId: string): string => {
+    // Map numeric IDs to Filipino category IDs
+    const filipinoCategoryMapping: { [key: string]: string } = {
+        '1': 'pamilya-sariling-buhay',
+        '2': 'araw-araw-pamumuhay',
+        '3': 'balita-kasalukuyang-pangyayari',
+        '4': 'damdamin-relasyon',
+        '5': 'mga-plano-pagkakataon',
+        '6': 'libangan-kasiyahan',
+        '7': 'mga-alaala-nostalgia',
+    };
+
+    const mappedCategoryId = filipinoCategoryMapping[categoryId] || categoryId;
+
+    if (filipinoTopicListBackgrounds[mappedCategoryId as keyof typeof filipinoTopicListBackgrounds]) {
+        return filipinoTopicListBackgrounds[mappedCategoryId as keyof typeof filipinoTopicListBackgrounds].fallbackColor;
+    }
+
+    return filipinoTopicListBackgrounds.default.fallbackColor;
+};
+
+// Check if a category ID is a Filipino category
+export const isFilipinoCategory = (categoryId: string): boolean => {
+    return categoryId in filipinoTopicListBackgrounds && categoryId !== 'default';
+};
+
+// Get all available Filipino category IDs
+export const getAvailableFilipinoCategoryIds = (): string[] => {
+    return Object.keys(filipinoTopicListBackgrounds).filter(key => key !== 'default');
+};
+
+// Map numeric category ID to Filipino category ID
+export const mapNumericToFilipinoCategory = (numericId: string): string | null => {
+    const filipinoCategoryMapping: { [key: string]: string } = {
+        '1': 'pamilya-sariling-buhay',
+        '2': 'araw-araw-pamumuhay',
+        '3': 'balita-kasalukuyang-pangyayari',
+        '4': 'damdamin-relasyon',
+        '5': 'mga-plano-pagkakataon',
+        '6': 'libangan-kasiyahan',
+        '7': 'mga-alaala-nostalgia',
+    };
+
+    return filipinoCategoryMapping[numericId] || null;
+};
+
+// Enhanced background resolution with fallback support
+export const getBackgroundWithFallback = (context: string, categoryId?: string, topicId?: string): {
+    local: any;
+    remote: string;
+    fallbackColor?: string;
+} => {
+    const local = getLocalAssetByContext(context, categoryId, topicId);
+    const remote = getRemoteUrlByContext(context, categoryId, topicId);
+
+    // Get fallback color for Filipino categories
+    let fallbackColor: string | undefined;
+    if (categoryId && context === 'topic-list') {
+        fallbackColor = getFilipinoCategoryFallbackColor(categoryId);
+    }
+
+    return {
+        local,
+        remote,
+        fallbackColor
+    };
 };

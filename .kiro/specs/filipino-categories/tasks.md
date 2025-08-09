@@ -58,7 +58,12 @@ Convert the Filipino categories design into a series of prompts for a code-gener
   - Write component tests for layout rendering, responsiveness, and user interactions
   - _Requirements: 5.1, 5.2, 5.3, 5.5, 5.6_
 
-- [ ] 5. Integrate background image system
+- [x] 5. Integrate background image system
+
+
+
+
+
   - Update `src/assets/backgrounds/index.ts` to support Filipino category mappings
   - Modify background resolution functions to work with new category IDs
   - Create mapping between Filipino category IDs and existing background images

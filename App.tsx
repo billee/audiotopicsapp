@@ -46,14 +46,20 @@ function App(): React.JSX.Element {
   };
 
   const navigateBack = () => {
+    console.log('App - navigateBack called, current screen:', navState.currentScreen);
     if (navState.currentScreen === 'AudioPlayer') {
+      console.log('App - Navigating back from AudioPlayer to TopicList');
       setNavState({
-        ...navState,
         currentScreen: 'TopicList',
+        selectedCategory: navState.selectedCategory, // Keep the selected category
+        selectedTopic: undefined, // Clear the selected topic
       });
     } else if (navState.currentScreen === 'TopicList') {
+      console.log('App - Navigating back from TopicList to Categories');
       setNavState({
         currentScreen: 'Categories',
+        selectedCategory: undefined,
+        selectedTopic: undefined,
       });
     }
   };
@@ -61,13 +67,17 @@ function App(): React.JSX.Element {
   // Mock navigation object for screens
   const mockNavigation = {
     navigate: (screen: string, params?: any) => {
+      console.log('App - mockNavigation.navigate called:', screen, params);
       if (screen === 'TopicList') {
         navigateToTopicList(params?.category);
       } else if (screen === 'AudioPlayer') {
         navigateToAudioPlayer(params?.topic);
       }
     },
-    goBack: navigateBack,
+    goBack: () => {
+      console.log('App - mockNavigation.goBack called');
+      navigateBack();
+    },
   };
 
   const renderCurrentScreen = () => {
@@ -76,23 +86,23 @@ function App(): React.JSX.Element {
         return <CategoryScreen navigation={mockNavigation} />;
       case 'TopicList':
         return (
-          <TopicListScreen 
-            route={{ 
-              params: { 
+          <TopicListScreen
+            route={{
+              params: {
                 categoryId: navState.selectedCategory?.id || '',
                 categoryName: navState.selectedCategory?.name || 'Topics'
-              } 
+              }
             }}
             navigation={mockNavigation}
           />
         );
       case 'AudioPlayer':
         return (
-          <AudioPlayerScreen 
-            route={{ 
-              params: { 
-                topic: navState.selectedTopic 
-              } 
+          <AudioPlayerScreen
+            route={{
+              params: {
+                topic: navState.selectedTopic
+              }
             }}
             navigation={mockNavigation}
           />

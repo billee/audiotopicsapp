@@ -101,11 +101,7 @@ const TopicInfo: React.FC<TopicInfoProps> = ({
           </Text>
         )}
 
-        {topic.description && (
-          <Text style={styles.description} numberOfLines={3} testID="topic-description">
-            {topic.description}
-          </Text>
-        )}
+
 
         <View style={styles.metadataContainer}>
           <View style={styles.metadataRow}>

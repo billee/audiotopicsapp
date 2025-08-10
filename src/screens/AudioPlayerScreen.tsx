@@ -50,7 +50,7 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
     title: 'Sample Science Topic',
     description: 'This is a sample science topic for testing the player interface.',
     categoryId: '2', // Use science category ID for testing
-    audioUrl: 'https://example.com/audio.mp3',
+    audioUrl: 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3', // Working sample audio URL
     duration: 300,
     author: 'Sample Author',
     publishDate: new Date().toISOString(), // Convert to ISO string for serialization
@@ -61,7 +61,7 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
       size: 5000000,
     },
   };
-  
+
   const { topic = mockTopic, playlist = [] } = route?.params || {};
 
   // Responsive design hooks
@@ -123,15 +123,15 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
       try {
         // First try to get category-specific background
         let backgroundUrl: string;
-        
-        const context: BackgroundContext = { 
+
+        const context: BackgroundContext = {
           type: 'audio-player',
           categoryId: topic?.categoryId?.toString(), // Pass categoryId for science-specific backgrounds
-          topicId: topic?.id 
+          topicId: topic?.id
         };
         console.log('AudioPlayerScreen - using context:', context);
         backgroundUrl = getBackgroundImage(context);
-        
+
         // If no category-specific background, try topic thumbnail
         if (!backgroundUrl || backgroundUrl === getBackgroundImage({ type: 'audio-player' })) {
           if (topic?.thumbnailUrl) {
@@ -219,15 +219,33 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
 
 
   // Handle back button press - stop audio and clean up
-  const handleBackPress = useCallback(async () => {
-    // Stop audio playback if playing
-    if (isPlaying) {
-      await togglePlayback();
+  const handleBackPress = useCallback(() => {
+    console.log('AudioPlayerScreen - Back button pressed');
+    console.log('AudioPlayerScreen - Navigation object:', navigation);
+
+    // Stop progress tracking first
+    try {
+      stopTracking();
+      console.log('AudioPlayerScreen - Progress tracking stopped');
+    } catch (error) {
+      console.error('AudioPlayerScreen - Error stopping progress tracking:', error);
     }
-    // Stop progress tracking
-    stopTracking();
-    // Navigate back
-    navigation?.goBack();
+
+    // Stop audio playback if playing (don't await to avoid blocking navigation)
+    if (isPlaying) {
+      console.log('AudioPlayerScreen - Stopping audio playback');
+      togglePlayback().catch(error => {
+        console.error('AudioPlayerScreen - Error stopping audio:', error);
+      });
+    }
+
+    // Navigate back immediately
+    console.log('AudioPlayerScreen - Calling navigation.goBack()');
+    if (navigation && typeof navigation.goBack === 'function') {
+      navigation.goBack();
+    } else {
+      console.error('AudioPlayerScreen - Navigation goBack not available or not a function');
+    }
   }, [isPlaying, togglePlayback, stopTracking, navigation]);
 
   // Get the appropriate background image for audio player
@@ -236,12 +254,12 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
     if (ambientBackground) {
       return ambientBackground;
     }
-    
+
     // Fallback to topic thumbnail if available
     if (currentTopic?.thumbnailUrl || topic?.thumbnailUrl) {
       return currentTopic?.thumbnailUrl || topic?.thumbnailUrl;
     }
-    
+
     // Final fallback to default ambient background
     const defaultAmbient = getRandomAmbientBackground();
     return defaultAmbient.remote;
@@ -252,7 +270,7 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      
+
       <BackgroundImage
         source={backgroundImageSource}
         resizeMode="stretch" // Stretch image to cover full height and width
@@ -300,7 +318,7 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
           styles.headerContainer,
           getResponsiveStyle(styles.headerPortrait, styles.headerLandscape)
         ]}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.backButton}
             onPress={handleBackPress}
             testID="back-button"
@@ -319,7 +337,7 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
                   topic={currentTopic || topic}
                   layout={audioPlayer.compactLayout ? "compact" : "full"}
                 />
-                
+
                 {/* Progress Bar - moved below TopicInfo */}
                 <View style={[styles.progressContainer, { paddingVertical: audioPlayer.controlsSpacing }]}>
                   <ProgressBar
@@ -333,7 +351,7 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
                 </View>
               </View>
             </View>
-            
+
             <View style={styles.landscapeRight}>
               {/* Audio Controls */}
               <View style={[styles.controlsContainer, { paddingVertical: audioPlayer.controlsSpacing }]}>
@@ -363,7 +381,7 @@ const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation
                 topic={currentTopic || topic}
                 layout="full"
               />
-              
+
               {/* Progress Bar - moved below TopicInfo */}
               <View style={[styles.progressContainer, { paddingVertical: audioPlayer.controlsSpacing }]}>
                 <ProgressBar
@@ -429,8 +447,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: getResponsivePadding(16),
     paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + 20 : 30,
-    paddingBottom: 0,
-    marginBottom: -80,
+    paddingBottom: 20,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1000, // Ensure back button is always on top
   } as ViewStyle,
 
   headerPortrait: {
@@ -445,7 +467,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Increased opacity for better visibility over ambient backgrounds
+    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Increased opacity for better visibility over ambient backgrounds
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -455,7 +477,8 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    elevation: 5, // Android shadow
+    elevation: 10, // Higher elevation for Android to ensure it's on top
+    zIndex: 1001, // Ensure it's above everything else
   } as ViewStyle,
 
   centerContent: {
@@ -468,7 +491,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     minHeight: 100,
-    marginTop: -70,
+    marginTop: 80, // Add positive margin to push content below the back button
+    paddingTop: 20, // Additional padding for better spacing
   } as ViewStyle,
 
   progressContainer: {

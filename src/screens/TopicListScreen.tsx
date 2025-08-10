@@ -41,6 +41,28 @@ interface TopicListScreenProps {
 const TopicListScreen: React.FC<TopicListScreenProps> = ({ route, navigation }) => {
   const { categoryId } = route.params;
 
+  // Sample Filipino audio topics for testing
+  const sampleTopics = [
+    {
+      id: '1',
+      title: 'Mga Balitang Pang-ekonomiya ngayong Linggo',
+      duration: 180, // 3 minutes
+      audioUrl: 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3',
+    },
+    {
+      id: '2',
+      title: 'Usapang Politika: Mga Nangyayari sa Senado',
+      duration: 240, // 4 minutes
+      audioUrl: 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3',
+    },
+    {
+      id: '3',
+      title: 'Mga Pagbabago sa Lokal na Pamahalaan',
+      duration: 300, // 5 minutes
+      audioUrl: 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3',
+    },
+  ];
+
   // Hooks
   const {
     topicsWithProgress,
@@ -96,6 +118,25 @@ const TopicListScreen: React.FC<TopicListScreenProps> = ({ route, navigation }) 
   const handleRefresh = useCallback(() => {
     refreshTopics();
   }, [refreshTopics]);
+
+  // Handle sample topic play
+  const handleSampleTopicPlay = useCallback((sampleTopic: any) => {
+    // Convert sample topic to AudioTopic format
+    const audioTopic: AudioTopic = {
+      id: sampleTopic.id,
+      title: sampleTopic.title,
+      description: `Filipino audio content: ${sampleTopic.title}`,
+      duration: sampleTopic.duration,
+      audioUrl: sampleTopic.audioUrl,
+      categoryId: categoryId,
+      tags: ['filipino', 'news'],
+      difficulty: 'beginner',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    handleTopicPress(audioTopic);
+  }, [handleTopicPress, categoryId]);
 
   // Background image hook
   const { getBackgroundImage } = useBackgroundImage();
@@ -164,16 +205,22 @@ const TopicListScreen: React.FC<TopicListScreenProps> = ({ route, navigation }) 
         resizeMode="stretch"
         testID="topic-list-background"
       >
-        <TopicList
-          topics={topicsWithProgress}
-          loading={loading}
-          error={error}
-          currentPlayingTopicId={currentTopic?.id}
-          onTopicPress={handleTopicPress}
-          onRefresh={handleRefresh}
-          emptyMessage={`No topics available in ${category?.name || 'this category'}`}
-          showStats={false}
-        />
+        <View style={styles.topicsContainer}>
+          {sampleTopics.map((topic, index) => (
+            <View key={topic.id} style={styles.topicRow}>
+              <View style={styles.topicInfo}>
+                <Text style={styles.topicTitle}>{topic.title}</Text>
+                <Text style={styles.topicDuration}>{Math.floor(topic.duration / 60)}:{(topic.duration % 60).toString().padStart(2, '0')}</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.playButton}
+                onPress={() => handleSampleTopicPlay(topic)}
+              >
+                <Icon name="play-arrow" size={32} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
       </BackgroundImage>
     </SafeAreaView>
   );
@@ -224,6 +271,59 @@ const styles = StyleSheet.create({
   },
   headerSpacer: {
     width: 40,
+  },
+  topicsContainer: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 20,
+  },
+  topicRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  topicInfo: {
+    flex: 1,
+    marginRight: 12,
+  },
+  topicTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1F2937',
+    marginBottom: 4,
+    lineHeight: 22,
+  },
+  topicDuration: {
+    fontSize: 14,
+    color: '#6B7280',
+    fontWeight: '500',
+  },
+  playButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#10B981',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
   },
 });
 

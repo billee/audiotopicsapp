@@ -164,9 +164,9 @@ export const FILIPINO_CATEGORIES: FilipinoCategory[] = [
     layoutPosition: { row: 0, column: 1 }
   },
   {
-    id: 'balita-kasalukuyang-pangyayari',
+    id: 'mga-kasalukuyang-balita',
     numericId: 3,
-    name: 'Balita at Kasalukuyang Pangyayari',
+    name: 'Mga kasalukuyang balita',
     englishName: 'News & Current Events',
     description: 'Mga balita, usapang politika, at kasalukuyang mga pangyayari',
     englishDescription: 'News, political discussions, and current events',

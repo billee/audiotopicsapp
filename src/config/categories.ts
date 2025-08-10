@@ -66,9 +66,9 @@ export const FILIPINO_CATEGORIES: FilipinoCategory[] = [
         layoutPosition: { row: 0, column: 1 }
     },
     {
-        id: 'balita-kasalukuyang-pangyayari',
+        id: 'mga-kasalukuyang-balita',
         numericId: 3,
-        name: 'Balita at Kasalukuyang Pangyayari',
+        name: 'Mga kasalukuyang balita',
         englishName: 'News & Current Events',
         description: 'Mga balita, usapang politika, at kasalukuyang mga pangyayari',
         englishDescription: 'News, political discussions, and current events',
@@ -109,7 +109,7 @@ export const FILIPINO_CATEGORIES: FilipinoCategory[] = [
         description: 'Mga libangan, kasiyahan, at masasayang karanasan',
         englishDescription: 'Entertainment, fun, and joyful experiences',
         backgroundColor: '#FFEB3B', // Bright yellow
-        textColor: '#F57F17',
+        textColor: '#8B4513', // Much darker brown for better contrast
         backgroundImage: 'entertainment.png',
         layoutPosition: { row: 1, column: 2 }
     },

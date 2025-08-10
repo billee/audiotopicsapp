@@ -89,10 +89,8 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
   };
 
   const renderRegularRow = (rowCategories: (FilipinoCategory | null)[], rowIndex: number) => {
-    // Make first row taller than second row
-    const rowHeight = rowIndex === 0
-      ? gridDimensions.regularCardHeight * 1.3 // First row 30% taller
-      : gridDimensions.regularCardHeight; // Second row normal height
+    // All rows same height for uniform appearance
+    const rowHeight = gridDimensions.regularCardHeight;
 
     return (
       <View

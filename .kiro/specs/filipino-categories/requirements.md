@@ -16,7 +16,7 @@ This feature will replace the current English categories (Technology, Science, H
 2. WHEN a user views the category list THEN it SHALL display the following Filipino categories:
    - "Pamilya at Sariling Buhay"
    - "Araw-araw na Pamumuhay" 
-   - "Balita at Kasalukuyang Pangyayari"
+   - "Mga-Kasalukuyang-Balita"
    - "Damdamin at Relasyon"
    - "Mga Plano at Pagkakataon"
    - "Libangan at Kasiyahan"

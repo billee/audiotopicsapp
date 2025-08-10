@@ -33,9 +33,9 @@ jest.mock('../../../hooks/useOrientation', () => ({
 jest.mock('../CategoryCard', () => {
   const React = require('react');
   const { TouchableOpacity, Text } = require('react-native');
-  
+
   return ({ category, onPress, size, testID }: any) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       testID={testID}
       onPress={() => onPress(category)}
     >
@@ -70,9 +70,9 @@ describe('CategoryGrid', () => {
       layoutPosition: { row: 0, column: 1 }
     },
     {
-      id: 'balita-kasalukuyang-pangyayari',
+      id: 'mga-kasalukuyang-balita',
       numericId: 3,
-      name: 'Balita at Kasalukuyang Pangyayari',
+      name: 'Mga kasalukuyang balita',
       englishName: 'News & Current Events',
       description: 'Mga balita at usapang politika',
       englishDescription: 'News and political discussions',
@@ -173,7 +173,7 @@ describe('CategoryGrid', () => {
       // Check that all categories are rendered
       mockCategories.forEach(category => {
         const isSpanning = category.layoutPosition.span === 3;
-        const testId = isSpanning 
+        const testId = isSpanning
           ? `category-grid-spanning-card-${category.id}`
           : `category-grid-card-${category.id}`;
         expect(getByTestId(testId)).toBeTruthy();
@@ -278,7 +278,7 @@ describe('CategoryGrid', () => {
 
       const firstCategory = mockCategories[0];
       fireEvent.press(getByTestId(`category-grid-card-${firstCategory.id}`));
-      
+
       expect(mockOnCategorySelect).toHaveBeenCalledWith(firstCategory);
     });
 
@@ -310,7 +310,7 @@ describe('CategoryGrid', () => {
       // Press multiple categories
       fireEvent.press(getByTestId(`category-grid-card-${mockCategories[0].id}`));
       fireEvent.press(getByTestId(`category-grid-card-${mockCategories[1].id}`));
-      
+
       expect(mockOnCategorySelect).toHaveBeenCalledTimes(2);
       expect(mockOnCategorySelect).toHaveBeenNthCalledWith(1, mockCategories[0]);
       expect(mockOnCategorySelect).toHaveBeenNthCalledWith(2, mockCategories[1]);
@@ -525,7 +525,7 @@ describe('CategoryGrid', () => {
 
       // Main grid
       expect(getByTestId('category-grid')).toBeTruthy();
-      
+
       // Rows
       expect(getByTestId('category-grid-row-0')).toBeTruthy();
       expect(getByTestId('category-grid-row-1')).toBeTruthy();
@@ -534,7 +534,7 @@ describe('CategoryGrid', () => {
       // All category cards
       mockCategories.forEach(category => {
         const isSpanning = category.layoutPosition.span === 3;
-        const testId = isSpanning 
+        const testId = isSpanning
           ? `category-grid-spanning-card-${category.id}`
           : `category-grid-card-${category.id}`;
         expect(getByTestId(testId)).toBeTruthy();

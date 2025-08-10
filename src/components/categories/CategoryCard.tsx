@@ -50,10 +50,9 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
 
   // Calculate card dimensions based on size and layout
   const getCardDimensions = () => {
-    const baseWidth = screenWidth / 3 - 16; // 3 columns with spacing
-    const span = category.layoutPosition.span || 1;
-
-    const cardWidth = span > 1 ? screenWidth - 32 : baseWidth;
+    // Calculate width based on longest Filipino title + padding
+    // Reduced by 50 pixels to make boxes less elongated
+    const cardWidth = (screenWidth * 0.8) - 50;
 
     // Use custom height if provided, otherwise calculate based on size
     let cardHeight: number;
@@ -102,7 +101,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
     : undefined;
 
   // Accessibility label
-  const accessibilityLabel = `${category.name}. ${category.description}. Tap to view topics.`;
+  const accessibilityLabel = `${category.name}. Tap to view topics.`;
 
   return (
     <TouchableOpacity
@@ -192,10 +191,10 @@ const CardContent: React.FC<{
     <View style={[
       styles.content,
       {
-        padding: getResponsivePadding(isFullWidth ? 20 : 16),
-        paddingTop: getResponsivePadding(isFullWidth ? 18 : 14), // Reduced top padding for text
-        justifyContent: isFullWidth ? 'center' : 'flex-end',
-        alignItems: isFullWidth ? 'center' : 'flex-start',
+        padding: getResponsivePadding(16),
+        paddingTop: getResponsivePadding(6), // Much smaller top padding
+        justifyContent: 'center', // Center all content vertically
+        alignItems: 'center', // Center all content horizontally
       }
     ]}>
       <Text
@@ -205,35 +204,17 @@ const CardContent: React.FC<{
             fontSize: scaleFontSize(fontSizes.title),
             lineHeight: scaleFontSize(fontSizes.title) * 1.3,
             color: category.textColor,
-            textAlign: isFullWidth ? 'center' : 'left',
+            textAlign: 'center', // Center all titles
             fontWeight: '700', // Bolder for Filipino aesthetic
           }
         ]}
-        numberOfLines={isFullWidth ? 1 : 2}
-        adjustsFontSizeToFit={isFullWidth}
-        minimumFontScale={0.8}
+        numberOfLines={2}
+        adjustsFontSizeToFit={false}
       >
         {category.name}
       </Text>
 
-      {size !== 'small' && (
-        <Text
-          style={[
-            styles.categoryDescription,
-            {
-              fontSize: scaleFontSize(fontSizes.description),
-              lineHeight: scaleFontSize(fontSizes.description) * 1.4,
-              color: category.textColor,
-              opacity: 0.8,
-              textAlign: isFullWidth ? 'center' : 'left',
-              marginTop: getResponsiveMargin(4),
-            }
-          ]}
-          numberOfLines={isFullWidth ? 1 : 2}
-        >
-          {category.description}
-        </Text>
-      )}
+      {/* Description text removed - showing only category titles */}
     </View>
   );
 };

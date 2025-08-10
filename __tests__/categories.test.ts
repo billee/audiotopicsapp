@@ -59,7 +59,7 @@ describe('Filipino Categories Configuration', () => {
             const expectedNames = [
                 'Pamilya at Sariling Buhay',
                 'Araw-araw na Pamumuhay',
-                'Balita at Kasalukuyang Pangyayari',
+                'Mga kasalukuyang balita',
                 'Damdamin at Relasyon',
                 'Mga Plano at Pagkakataon',
                 'Libangan at Kasiyahan',

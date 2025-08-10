@@ -8,14 +8,14 @@
 // Category Screen Backgrounds
 export const categoryScreenBackgrounds = {
     default: {
-        local: null, // Temporarily disabled - using remote only
-        remote: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop&crop=center',
-        description: 'Professional audio/education themed background with warm, inviting colors'
+        local: null, // Temporarily disabled - Metro bundler issue with jpg
+        remote: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop&crop=center',
+        description: 'Peaceful forest scene perfect for Filipino audio content'
     },
     fallback: {
         local: null, // Temporarily disabled - using remote only
-        remote: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=600&fit=crop&crop=center',
-        description: 'Simple, elegant fallback background for category screen'
+        remote: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&h=600&fit=crop&crop=center',
+        description: 'Tranquil ocean waves as fallback background'
     }
 };
 

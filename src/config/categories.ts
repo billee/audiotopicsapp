@@ -133,7 +133,7 @@ export const FILIPINO_CATEGORIES: FilipinoCategory[] = [
 export const CATEGORY_LAYOUT_CONFIG: CategoryLayoutConfig = {
     gridRows: 3,
     gridColumns: 3,
-    cardSpacing: 12,
+    cardSpacing: 20,
     cardBorderRadius: 16,
     filipinoColorScheme: {
         primary: '#8B4513', // Warm brown

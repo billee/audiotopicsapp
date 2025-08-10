@@ -15,8 +15,8 @@ import {
 } from 'react-native';
 import { FilipinoCategory, CategoryLayoutConfig } from '../../config/categories';
 import { useResponsiveStyles } from '../../hooks/useOrientation';
-import { 
-  getResponsivePadding, 
+import {
+  getResponsivePadding,
   getResponsiveMargin,
   scaleFontSize,
 } from '../../utils/responsive';
@@ -41,23 +41,24 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
   const gridDimensions = useMemo(() => {
     const availableWidth = screenWidth - (getResponsivePadding(16) * 2);
     const availableHeight = screenHeight - 200; // Reserve space for header/navigation
-    
+
     const spacing = layoutConfig.cardSpacing;
-    
-    // Calculate card dimensions for 3x3 grid with bottom spanning
-    const cardWidth = (availableWidth - (spacing * 2)) / 3;
-    
-    // Calculate heights to fit in available space
-    // Top 2 rows: regular cards, Bottom row: spanning card
+
+    // Calculate card dimensions for full-width layout (one per row)
+    const cardWidth = availableWidth; // Full width for each card
+
+    // Calculate heights for full-width layout
+    // We have 7 categories, so we need 6 gaps between them
+    const totalSpacingHeight = spacing * 6; // 6 gaps between 7 rows
+    const availableCardHeight = availableHeight - totalSpacingHeight;
+
+    // Each card gets equal height, optimized for text display
     const regularCardHeight = Math.min(
-      cardWidth * (isLandscape ? 0.8 : 1.0), // Aspect ratio adjustment
-      (availableHeight - (spacing * 2)) / 3 // Ensure it fits in 1/3 of available height
+      isLandscape ? 80 : 100, // Fixed height optimized for text
+      availableCardHeight / 7 // Divide by 7 for all categories
     );
-    
-    const spanningCardHeight = Math.min(
-      regularCardHeight * 0.8, // Slightly shorter for better proportion
-      availableHeight - (regularCardHeight * 2) - (spacing * 2)
-    );
+
+    const spanningCardHeight = regularCardHeight; // Same height for all cards
 
     return {
       cardWidth,
@@ -69,22 +70,10 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
     };
   }, [screenWidth, screenHeight, isLandscape, layoutConfig.cardSpacing]);
 
-  // Organize categories by their layout positions
+  // Organize categories - one per row (full width)
   const organizedCategories = useMemo(() => {
-    const grid: (FilipinoCategory | null)[][] = [
-      [null, null, null], // Row 0
-      [null, null, null], // Row 1
-      [null]              // Row 2 (spanning category)
-    ];
-
-    categories.forEach(category => {
-      const { row, column, span = 1 } = category.layoutPosition;
-      if (row < grid.length && column < grid[row].length) {
-        grid[row][column] = category;
-      }
-    });
-
-    return grid;
+    // Simply return each category as its own row
+    return categories.map(category => [category]);
   }, [categories]);
 
   const handleCategoryPress = (category: FilipinoCategory) => {
@@ -95,16 +84,25 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
     } catch (error) {
       // Haptic feedback not available, continue silently
     }
-    
+
     onCategorySelect(category);
   };
 
   const renderRegularRow = (rowCategories: (FilipinoCategory | null)[], rowIndex: number) => {
+    // Make first row taller than second row
+    const rowHeight = rowIndex === 0
+      ? gridDimensions.regularCardHeight * 1.3 // First row 30% taller
+      : gridDimensions.regularCardHeight; // Second row normal height
+
     return (
-      <View key={`row-${rowIndex}`} style={styles.row} testID={`${testID}-row-${rowIndex}`}>
+      <View
+        key={`row-${rowIndex}`}
+        style={styles.row}
+        testID={`${testID}-row-${rowIndex}`}
+      >
         {rowCategories.map((category, columnIndex) => {
           if (!category) return null;
-          
+
           return (
             <View
               key={category.id}
@@ -112,8 +110,7 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
                 styles.cardContainer,
                 {
                   width: gridDimensions.cardWidth,
-                  height: gridDimensions.regularCardHeight,
-                  marginRight: columnIndex < rowCategories.length - 1 ? gridDimensions.spacing : 0,
+                  height: rowHeight, // Use dynamic height based on row
                 }
               ]}
             >
@@ -121,6 +118,7 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
                 category={category}
                 onPress={handleCategoryPress}
                 size="medium"
+                customHeight={rowHeight} // Pass the dynamic height
                 testID={`${testID}-card-${category.id}`}
               />
             </View>
@@ -156,7 +154,7 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
   };
 
   return (
-    <View 
+    <View
       style={[
         styles.container,
         {
@@ -166,16 +164,10 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
       ]}
       testID={testID}
     >
-      {/* Regular rows (0 and 1) */}
-      {organizedCategories.slice(0, 2).map((rowCategories, rowIndex) => 
+      {/* All 7 categories as full-width rows */}
+      {organizedCategories.map((rowCategories, rowIndex) =>
         renderRegularRow(rowCategories, rowIndex)
       )}
-      
-      {/* Spacing between regular rows and spanning row */}
-      <View style={{ height: gridDimensions.spacing }} />
-      
-      {/* Spanning row (row 2) */}
-      {organizedCategories[2] && renderSpanningRow(organizedCategories[2][0])}
     </View>
   );
 };
@@ -188,22 +180,29 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'center', // Center the full-width card
     alignItems: 'center',
-    marginBottom: getResponsiveMargin(12),
+    marginBottom: 16, // Spacing between full-width rows
+    paddingHorizontal: 8,
   },
   spanningRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 8, // Add top margin for separation from regular rows
+    marginBottom: 16, // Add bottom margin
+    paddingHorizontal: 8, // Add horizontal padding
   },
   cardContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+    margin: 4, // Add margin around each card
+    flex: 1, // Allow cards to expand equally
   },
   spanningCardContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+    margin: 4, // Add margin around spanning card
   },
 });
 

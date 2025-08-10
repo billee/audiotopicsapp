@@ -17,9 +17,9 @@ import {
 } from 'react-native';
 import { FilipinoCategory } from '../../config/categories';
 import { useResponsiveStyles } from '../../hooks/useOrientation';
-import { 
-  scaleFontSize, 
-  getResponsivePadding, 
+import {
+  scaleFontSize,
+  getResponsivePadding,
   getResponsiveBorderRadius,
   getResponsiveMargin,
   createResponsiveImageUrl,
@@ -33,14 +33,16 @@ interface CategoryCardProps {
   size?: CategoryCardSize;
   style?: any;
   testID?: string;
+  customHeight?: number; // Add custom height prop
 }
 
-const CategoryCard: React.FC<CategoryCardProps> = ({ 
-  category, 
-  onPress, 
+const CategoryCard: React.FC<CategoryCardProps> = ({
+  category,
+  onPress,
   size = 'medium',
   style,
-  testID 
+  testID,
+  customHeight
 }) => {
   const { screenWidth, isLandscape, isTablet } = useResponsiveStyles();
   const [imageError, setImageError] = useState(false);
@@ -50,28 +52,33 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   const getCardDimensions = () => {
     const baseWidth = screenWidth / 3 - 16; // 3 columns with spacing
     const span = category.layoutPosition.span || 1;
-    
+
     const cardWidth = span > 1 ? screenWidth - 32 : baseWidth;
-    
+
+    // Use custom height if provided, otherwise calculate based on size
     let cardHeight: number;
-    switch (size) {
-      case 'small':
-        cardHeight = isLandscape ? 80 : 100;
-        break;
-      case 'large':
-        cardHeight = isLandscape ? 140 : 180;
-        break;
-      case 'medium':
-      default:
-        cardHeight = isLandscape ? 100 : 130;
-        break;
+    if (customHeight) {
+      cardHeight = customHeight; // Use height passed from parent
+    } else {
+      switch (size) {
+        case 'small':
+          cardHeight = isLandscape ? 80 : 100;
+          break;
+        case 'large':
+          cardHeight = isLandscape ? 140 : 180;
+          break;
+        case 'medium':
+        default:
+          cardHeight = isLandscape ? 100 : 130;
+          break;
+      }
+
+      // Adjust for spanning cards (like the bottom full-width category)
+      if (span > 1) {
+        cardHeight = isLandscape ? 100 : 120;
+      }
     }
-    
-    // Adjust for spanning cards (like the bottom full-width category)
-    if (span > 1) {
-      cardHeight = isLandscape ? 100 : 120;
-    }
-    
+
     return { cardWidth, cardHeight };
   };
 
@@ -90,7 +97,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   };
 
   // Create responsive background image URL
-  const backgroundImageUri = category.backgroundImage 
+  const backgroundImageUri = category.backgroundImage
     ? createResponsiveImageUrl(category.backgroundImage, cardWidth * 2, cardHeight * 2)
     : undefined;
 
@@ -123,7 +130,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
           source={{ uri: backgroundImageUri }}
           style={styles.backgroundImage}
           imageStyle={[
-            styles.imageStyle, 
+            styles.imageStyle,
             { borderRadius: getResponsiveBorderRadius(16) }
           ]}
           onError={handleImageError}
@@ -150,12 +157,12 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
 };
 
 // Separate component for card content to avoid duplication
-const CardContent: React.FC<{ 
-  category: FilipinoCategory; 
+const CardContent: React.FC<{
+  category: FilipinoCategory;
   size: CategoryCardSize;
 }> = ({ category, size }) => {
   const { isLandscape } = useResponsiveStyles();
-  
+
   const getFontSizes = () => {
     switch (size) {
       case 'small':
@@ -186,11 +193,12 @@ const CardContent: React.FC<{
       styles.content,
       {
         padding: getResponsivePadding(isFullWidth ? 20 : 16),
+        paddingTop: getResponsivePadding(isFullWidth ? 18 : 14), // Reduced top padding for text
         justifyContent: isFullWidth ? 'center' : 'flex-end',
         alignItems: isFullWidth ? 'center' : 'flex-start',
       }
     ]}>
-      <Text 
+      <Text
         style={[
           styles.categoryName,
           {
@@ -200,16 +208,16 @@ const CardContent: React.FC<{
             textAlign: isFullWidth ? 'center' : 'left',
             fontWeight: '700', // Bolder for Filipino aesthetic
           }
-        ]} 
+        ]}
         numberOfLines={isFullWidth ? 1 : 2}
         adjustsFontSizeToFit={isFullWidth}
         minimumFontScale={0.8}
       >
         {category.name}
       </Text>
-      
+
       {size !== 'small' && (
-        <Text 
+        <Text
           style={[
             styles.categoryDescription,
             {
@@ -220,7 +228,7 @@ const CardContent: React.FC<{
               textAlign: isFullWidth ? 'center' : 'left',
               marginTop: getResponsiveMargin(4),
             }
-          ]} 
+          ]}
           numberOfLines={isFullWidth ? 1 : 2}
         >
           {category.description}

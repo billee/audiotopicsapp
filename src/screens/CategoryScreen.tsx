@@ -9,11 +9,11 @@ import {
 import { useCategories } from '../hooks/useCategories';
 import { useResponsiveStyles } from '../hooks/useOrientation';
 import { useBackgroundImage } from '../hooks/useBackgroundImage';
-import CategoryGrid from '../components/categories/CategoryGrid';
+import { CategoryGrid } from '../components/categories';
 import { LoadingSpinner, ErrorMessage, BackgroundImage } from '../components/common';
 import { Category } from '../types';
 import { FilipinoCategory } from '../config/categories';
-import CategoryService from '../services/categoryService';
+import { CategoryService } from '../services';
 import { responsiveStyles, scaleFontSize } from '../utils/responsive';
 
 interface CategoryScreenProps {
@@ -57,14 +57,14 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
     try {
       setFilipinoLoading(true);
       setFilipinoError(null);
-      
+
       const categoryService = CategoryService.getInstance();
       const categories = categoryService.getAllFilipinoCategories();
       const config = categoryService.getLayoutConfig();
-      
+
       // Simulate network delay for consistency with legacy behavior
       await new Promise(resolve => setTimeout(resolve, 300));
-      
+
       setFilipinoCategories(categories);
       setLayoutConfig(config);
     } catch (err) {
@@ -80,7 +80,7 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
   const handleFilipinoSelect = useCallback((category: FilipinoCategory) => {
     // Update legacy selected category for backward compatibility
     selectCategory(category.id);
-    
+
     // Navigate to TopicListScreen if navigation is available
     if (navigation) {
       // Convert Filipino category to legacy format for navigation
@@ -93,11 +93,11 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
         iconUrl: category.icon,
         backgroundImageUrl: category.backgroundImage
       };
-      
-      navigation.navigate('TopicList', { 
+
+      navigation.navigate('TopicList', {
         category: legacyCategory,
         categoryId: category.id,
-        categoryName: category.name 
+        categoryName: category.name
       });
     }
   }, [selectCategory, navigation]);
@@ -105,13 +105,13 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
   // Handle category selection (legacy support)
   const handleCategorySelect = useCallback((category: Category) => {
     selectCategory(category.id);
-    
+
     // Navigate to TopicListScreen if navigation is available
     if (navigation) {
-      navigation.navigate('TopicList', { 
+      navigation.navigate('TopicList', {
         category: category,
         categoryId: category.id,
-        categoryName: category.name 
+        categoryName: category.name
       });
     }
   }, [selectCategory, navigation]);
@@ -134,10 +134,8 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
 
   // Auto-load Filipino categories on mount
   useEffect(() => {
-    if (filipinoCategories.length === 0 && !filipinoLoading && !filipinoError) {
-      loadFilipinoCategories();
-    }
-  }, [filipinoCategories.length, filipinoLoading, filipinoError, loadFilipinoCategories]);
+    loadFilipinoCategories();
+  }, [loadFilipinoCategories]);
 
   // Auto-load legacy categories on mount (for backward compatibility)
   useEffect(() => {
@@ -240,7 +238,7 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
             styles.title,
             getResponsiveStyle(styles.titlePortrait, styles.titleLandscape)
           ]}>
-            Mga Audio Topics
+            Ka Pinoy AI Audios
           </Text>
           <Text style={[
             styles.subtitle,
@@ -249,7 +247,7 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
             Tuklasin ang {filipinoCategories.length} kategorya ng mga nakaaantig na audio content
           </Text>
         </View>
-        
+
         <View style={styles.content}>
           <CategoryGrid
             categories={filipinoCategories}

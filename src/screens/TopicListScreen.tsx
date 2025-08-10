@@ -102,7 +102,7 @@ const TopicListScreen: React.FC<TopicListScreenProps> = ({ route, navigation }) 
 
   // Get contextual background image for this category
   console.log('TopicListScreen categoryId:', categoryId);
-  
+
   // TEMPORARY FIX: Force science category to use solid color background
   let backgroundImageUrl;
   if (categoryId === '2') {
@@ -121,7 +121,7 @@ const TopicListScreen: React.FC<TopicListScreenProps> = ({ route, navigation }) 
 
   // Fallback color based on category
   let fallbackColor = getCategoryColor(categoryId);
-  
+
   // Enhanced fallback color for science category
   if (categoryId === '2') {
     fallbackColor = '#065f46'; // A nice science-themed green color
@@ -134,26 +134,26 @@ const TopicListScreen: React.FC<TopicListScreenProps> = ({ route, navigation }) 
         barStyle="light-content"
         backgroundColor={category?.color || '#007AFF'}
       />
-      
+
       {/* Header with back button */}
       <View style={[styles.header, { backgroundColor: category?.color || '#007AFF' }]}>
-        <TouchableOpacity 
-          style={styles.backButton} 
+        <TouchableOpacity
+          style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Icon name="arrow-back" size={24} color="#FFFFFF" />
+          <Icon name="arrow-back" size={26} color="#FFFFFF" style={styles.backIcon} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
           {category?.name || route.params.categoryName || 'Topics'}
         </Text>
         <View style={styles.headerSpacer} />
       </View>
-      
+
       <BackgroundImage
         source={backgroundImageUrl}
         overlay={true}
         overlayOpacity={categoryId === '2' ? 0.3 : overlayOpacity} // Lighter overlay for solid color
-        overlayColors={categoryId === '2' ? 
+        overlayColors={categoryId === '2' ?
           ['rgba(6,95,70,0.1)', 'rgba(6,95,70,0.3)'] : // Science-themed gradient
           ['rgba(0,0,0,0.2)', 'rgba(0,0,0,0.6)']
         }
@@ -161,6 +161,7 @@ const TopicListScreen: React.FC<TopicListScreenProps> = ({ route, navigation }) 
         showLoadingState={false}
         showErrorState={false}
         enableResponsiveImages={false}
+        resizeMode="stretch"
         testID="topic-list-background"
       >
         <TopicList
@@ -171,8 +172,7 @@ const TopicListScreen: React.FC<TopicListScreenProps> = ({ route, navigation }) 
           onTopicPress={handleTopicPress}
           onRefresh={handleRefresh}
           emptyMessage={`No topics available in ${category?.name || 'this category'}`}
-          showStats={true}
-          stats={stats}
+          showStats={false}
         />
       </BackgroundImage>
     </SafeAreaView>
@@ -204,14 +204,23 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.2)', // Semi-transparent background for better visibility
+  },
+  backIcon: {
+    textShadowColor: 'rgba(0, 0, 0, 0.8)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   headerTitle: {
     flex: 1,
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#FFFFFF',
     textAlign: 'center',
     marginHorizontal: 16,
+    textShadowColor: 'rgba(0, 0, 0, 0.8)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   headerSpacer: {
     width: 40,

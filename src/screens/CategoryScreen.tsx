@@ -240,12 +240,7 @@ const CategoryScreen: React.FC<CategoryScreenProps> = ({ navigation }) => {
           ]}>
             Ka Pinoy AI Audios
           </Text>
-          <Text style={[
-            styles.subtitle,
-            getResponsiveStyle(styles.subtitlePortrait, styles.subtitleLandscape)
-          ]}>
-            Tuklasin ang {filipinoCategories.length} kategorya ng mga nakaaantig na audio content
-          </Text>
+
         </View>
 
         <View style={styles.content}>
@@ -269,13 +264,13 @@ const styles = StyleSheet.create({
   header: {
     paddingTop: StatusBar.currentHeight || 44,
     paddingHorizontal: 16,
-    paddingBottom: 24,
+    paddingBottom: 12,
   },
   headerPortrait: {
-    paddingBottom: 32,
+    paddingBottom: 16,
   },
   headerLandscape: {
-    paddingBottom: 16,
+    paddingBottom: 8,
     paddingTop: (StatusBar.currentHeight || 44) * 0.7,
   },
   title: {

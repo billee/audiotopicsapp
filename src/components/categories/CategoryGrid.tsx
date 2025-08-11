@@ -157,7 +157,7 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
         styles.container,
         {
           paddingHorizontal: getResponsivePadding(16),
-          paddingVertical: getResponsiveMargin(12),
+          paddingVertical: getResponsiveMargin(4),
         }
       ]}
       testID={testID}
@@ -173,7 +173,7 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
   },
   row: {

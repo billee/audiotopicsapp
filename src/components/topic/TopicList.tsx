@@ -15,11 +15,11 @@ import { AudioTopic, ProgressData } from '../../types';
 import TopicCard from './TopicCard';
 import { LoadingSpinner, ErrorMessage } from '../common';
 import { useLayoutConfig, useResponsiveStyles } from '../../hooks/useOrientation';
-import { 
-  scaleFontSize, 
-  getResponsivePadding, 
+import {
+  scaleFontSize,
+  getResponsivePadding,
   getResponsiveBorderRadius,
-  getResponsiveMargin 
+  getResponsiveMargin
 } from '../../utils/responsive';
 
 interface TopicWithProgress extends AudioTopic {
@@ -73,53 +73,13 @@ const TopicList: React.FC<TopicListProps> = ({
   );
 
   const renderHeader = useCallback(() => {
-    if (!showStats || !stats) return null;
-
-    return (
-      <View style={styles.statsContainer}>
-        <Text style={styles.statsTitle}>Progress Overview</Text>
-        <View style={styles.statsRow}>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{stats.totalTopics}</Text>
-            <Text style={styles.statLabel}>Total</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={[styles.statNumber, styles.completedNumber]}>
-              {stats.completedCount}
-            </Text>
-            <Text style={styles.statLabel}>Completed</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={[styles.statNumber, styles.inProgressNumber]}>
-              {stats.inProgressCount}
-            </Text>
-            <Text style={styles.statLabel}>In Progress</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{stats.notStartedCount}</Text>
-            <Text style={styles.statLabel}>Not Started</Text>
-          </View>
-        </View>
-        <View style={styles.progressBarContainer}>
-          <View style={styles.progressBar}>
-            <View 
-              style={[
-                styles.progressBarFill,
-                { width: `${stats.completionPercentage}%` }
-              ]} 
-            />
-          </View>
-          <Text style={styles.progressPercentage}>
-            {Math.round(stats.completionPercentage)}% Complete
-          </Text>
-        </View>
-      </View>
-    );
-  }, [showStats, stats]);
+    // Progress overview removed - no longer needed
+    return null;
+  }, []);
 
   const renderEmpty = useCallback(() => {
     if (loading) return null;
-    
+
     return (
       <View style={styles.emptyContainer}>
         <Text style={styles.emptyText}>{emptyMessage}</Text>
@@ -143,7 +103,7 @@ const TopicList: React.FC<TopicListProps> = ({
 
   if (error) {
     return (
-      <ErrorMessage 
+      <ErrorMessage
         message={error}
         onRetry={onRefresh}
       />

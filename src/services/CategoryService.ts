@@ -1,6 +1,6 @@
 /**
  * Category Service - Handles category data loading and management
- * Updated to support Filipino categories with backward compatibility
+ * Updated to support Filipino categories
  */
 
 import {
@@ -10,25 +10,6 @@ import {
     CategoryLayoutConfig
 } from '../config/categories';
 import { Category } from '../types';
-
-/**
- * Mapping from old English category IDs to new Filipino category IDs
- */
-const OLD_TO_NEW_CATEGORY_MAPPING: Record<string, string> = {
-    '1': 'araw-araw-pamumuhay', // Technology -> Daily Life & Local Culture
-    '2': 'balita-kasalukuyang-pangyayari', // Science -> News & Current Events  
-    '3': 'mga-alaala-nostalgia', // History -> Shared Nostalgia
-    '4': 'libangan-kasiyahan', // Arts & Culture -> Entertainment & Fun
-    '5': 'mga-plano-pagkakataon', // Business -> Plans & Opportunities
-    '6': 'pamilya-sariling-buhay', // Health & Wellness -> Personal & Family Life
-    // Additional mapping for any other old categories
-    'technology': 'araw-araw-pamumuhay',
-    'science': 'balita-kasalukuyang-pangyayari',
-    'history': 'mga-alaala-nostalgia',
-    'arts': 'libangan-kasiyahan',
-    'business': 'mga-plano-pagkakataon',
-    'health': 'pamilya-sariling-buhay'
-};
 
 class CategoryService {
     private static instance: CategoryService;
@@ -131,17 +112,7 @@ class CategoryService {
         return category || null;
     }
 
-    /**
-     * Map old category ID to new Filipino category
-     */
-    public mapOldCategoryToNew(oldCategoryId: string): FilipinoCategory | null {
-        const newCategoryId = OLD_TO_NEW_CATEGORY_MAPPING[oldCategoryId.toLowerCase()];
-        if (!newCategoryId) {
-            // If no mapping found, return the first category as fallback
-            return FILIPINO_CATEGORIES[0];
-        }
-        return this.getFilipinoCategory(newCategoryId);
-    }
+
 
     /**
      * Get layout configuration

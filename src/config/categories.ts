@@ -42,7 +42,7 @@ export interface CategoryLayoutConfig {
  */
 export const FILIPINO_CATEGORIES: FilipinoCategory[] = [
     {
-        id: 'pamilya-sariling-buhay',
+        id: 'cat1',
         numericId: 1,
         name: 'Pamilya at Sariling Buhay',
         englishName: 'Personal & Family Life',
@@ -54,7 +54,7 @@ export const FILIPINO_CATEGORIES: FilipinoCategory[] = [
         layoutPosition: { row: 0, column: 0 }
     },
     {
-        id: 'araw-araw-pamumuhay',
+        id: 'cat2',
         numericId: 2,
         name: 'Araw-araw na Pamumuhay',
         englishName: 'Daily Life & Local Culture',
@@ -66,7 +66,7 @@ export const FILIPINO_CATEGORIES: FilipinoCategory[] = [
         layoutPosition: { row: 0, column: 1 }
     },
     {
-        id: 'mga-kasalukuyang-balita',
+        id: 'cat3',
         numericId: 3,
         name: 'Mga kasalukuyang balita',
         englishName: 'News & Current Events',
@@ -78,7 +78,7 @@ export const FILIPINO_CATEGORIES: FilipinoCategory[] = [
         layoutPosition: { row: 0, column: 2 }
     },
     {
-        id: 'damdamin-relasyon',
+        id: 'cat4',
         numericId: 4,
         name: 'Damdamin at Relasyon',
         englishName: 'Emotional & Relationship Matters',
@@ -90,7 +90,7 @@ export const FILIPINO_CATEGORIES: FilipinoCategory[] = [
         layoutPosition: { row: 1, column: 0 }
     },
     {
-        id: 'mga-plano-pagkakataon',
+        id: 'cat5',
         numericId: 5,
         name: 'Mga Plano at Pagkakataon',
         englishName: 'Plans & Opportunities',
@@ -102,7 +102,7 @@ export const FILIPINO_CATEGORIES: FilipinoCategory[] = [
         layoutPosition: { row: 1, column: 1 }
     },
     {
-        id: 'libangan-kasiyahan',
+        id: 'cat6',
         numericId: 6,
         name: 'Libangan at Kasiyahan',
         englishName: 'Entertainment & Fun',
@@ -114,7 +114,7 @@ export const FILIPINO_CATEGORIES: FilipinoCategory[] = [
         layoutPosition: { row: 1, column: 2 }
     },
     {
-        id: 'mga-alaala-nostalgia',
+        id: 'cat7',
         numericId: 7,
         name: 'Mga Alaala at Nostalgia',
         englishName: 'Shared Nostalgia',

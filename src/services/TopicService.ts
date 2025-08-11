@@ -24,66 +24,50 @@ class TopicService {
    */
   private initializeMockData(): void {
     this.topics = [
-      // Technology topics - Replace with your own content
+      // Pamilya at Sariling Buhay topics
       {
-        id: 'tech-1',
-        title: 'Your Audio Title 1', // Replace with your title
-        description: 'Your audio description goes here. Describe what this audio is about.', // Replace with your description
-        categoryId: '1',
-        audioUrl: 'file:///android_asset/audio/your-audio-1.wav', // Replace with your .wav file name
-        duration: 300, // Replace with actual duration in seconds
-        author: 'Your Name', // Replace with your name
+        id: 'topic1',
+        title: 'Mga Balitang Pang-ekonomiya ngayong Linggo',
+        description: 'Weekly economic news and updates affecting families and personal finances.',
+        categoryId: 'cat1',
+        audioUrl: 'https://raw.githubusercontent.com/billee/audiotopicsapp/main/android/app/src/main/assets/audio/ElevenLabs_Sarah.mp3',
+        duration: 180, // 3 minutes - adjust based on actual file duration
+        author: 'Sarah',
         publishDate: '2024-01-15T00:00:00.000Z',
-        thumbnailUrl: 'https://via.placeholder.com/300x200/4A90E2/FFFFFF?text=Your+Audio',
+        thumbnailUrl: 'https://via.placeholder.com/300x200/E8F5E8/2D5016?text=Economic+News',
         metadata: {
           bitrate: 128,
-          format: 'wav',
-          size: 5000000 // Approximate file size in bytes
+          format: 'mp3',
+          size: 2880000 // Approximate file size for 3 minutes of MP3
         }
       },
       {
-        id: 'tech-2',
-        title: 'Quantum Computing Explained',
-        description: 'A beginner-friendly introduction to quantum computing and its potential applications.',
-        categoryId: '1',
+        id: 'topic2',
+        title: 'Family Stories',
+        description: 'Personal stories about family relationships and experiences.',
+        categoryId: 'cat1',
         audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-assets/Epoq-Lepidoptera.ogg',
         duration: 2100, // 35 minutes
-        author: 'Prof. Michael Rodriguez',
+        author: 'Maria Santos',
         publishDate: '2024-01-10T00:00:00.000Z',
-        thumbnailUrl: 'https://via.placeholder.com/300x200/4A90E2/FFFFFF?text=Quantum',
+        thumbnailUrl: 'https://via.placeholder.com/300x200/E8F5E8/2D5016?text=Family',
         metadata: {
           bitrate: 128,
           format: 'mp3',
           size: 33600000
         }
       },
+      // Araw-araw na Pamumuhay topics
       {
-        id: 'tech-3',
-        title: 'Blockchain Beyond Cryptocurrency',
-        description: 'Discovering practical applications of blockchain technology in various industries.',
-        categoryId: '1',
-        audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-assets/Epoq-Lepidoptera.ogg',
-        duration: 1650, // 27.5 minutes
-        author: 'Alex Thompson',
-        publishDate: '2024-01-05T00:00:00.000Z',
-        thumbnailUrl: 'https://via.placeholder.com/300x200/4A90E2/FFFFFF?text=Blockchain',
-        metadata: {
-          bitrate: 128,
-          format: 'mp3',
-          size: 26400000
-        }
-      },
-      // Science topics
-      {
-        id: 'sci-1',
+        id: 'topic3',
         title: 'Ang Krisis sa Klima',
         description: 'Base sa Ehipto.',
-        categoryId: '2',
+        categoryId: 'cat2',
         audioUrl: 'https://raw.githubusercontent.com/billee/audiotopicsapp/main/android/app/src/main/assets/audio/ang_krisis_sa_klima_tugon_ng_ehipto.mp3',
         duration: 360, // 6 minutes
         author: 'Joe S',
         publishDate: '2024-01-20T00:00:00.000Z',
-        thumbnailUrl: 'https://via.placeholder.com/300x200/50C878/FFFFFF?text=Krisis+sa+Klima',
+        thumbnailUrl: 'https://via.placeholder.com/300x200/FFF4E6/8B4513?text=Krisis+sa+Klima',
         metadata: {
           bitrate: 128,
           format: 'wav',
@@ -91,131 +75,100 @@ class TopicService {
         }
       },
       {
-        id: 'sci-2',
-        title: 'Climate Change Solutions',
-        description: 'Exploring innovative approaches to combat climate change.',
-        categoryId: '2',
+        id: 'topic4',
+        title: 'Daily Life Stories',
+        description: 'Stories about everyday experiences and local culture.',
+        categoryId: 'cat2',
         audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-assets/Epoq-Lepidoptera.ogg',
         duration: 1950, // 32.5 minutes
-        author: 'Dr. James Green',
+        author: 'Juan Dela Cruz',
         publishDate: '2024-01-18T00:00:00.000Z',
-        thumbnailUrl: 'https://via.placeholder.com/300x200/50C878/FFFFFF?text=Climate',
+        thumbnailUrl: 'https://via.placeholder.com/300x200/FFF4E6/8B4513?text=Daily+Life',
         metadata: {
           bitrate: 128,
           format: 'mp3',
           size: 31200000
         }
       },
-      // History topics
+      // Mga kasalukuyang balita topics
       {
-        id: 'hist-1',
-        title: 'Ancient Civilizations: Lost Cities',
-        description: 'Uncovering the secrets of ancient cities that time forgot.',
-        categoryId: '3',
+        id: 'topic5',
+        title: 'Current Events Discussion',
+        description: 'Discussion about current news and political events.',
+        categoryId: 'cat3',
         audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3',
         duration: 2700, // 45 minutes
-        author: 'Prof. Maria Santos',
+        author: 'News Reporter',
         publishDate: '2024-01-12T00:00:00.000Z',
-        thumbnailUrl: 'https://via.placeholder.com/300x200/D2691E/FFFFFF?text=Ancient',
+        thumbnailUrl: 'https://via.placeholder.com/300x200/E6F3FF/1E3A8A?text=News',
         metadata: {
           bitrate: 128,
           format: 'mp3',
           size: 43200000
         }
       },
+      // Damdamin at Relasyon topics
       {
-        id: 'hist-2',
-        title: 'World War II: Untold Stories',
-        description: 'Personal accounts and lesser-known events from World War II.',
-        categoryId: '3',
-        audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-assets/Epoq-Lepidoptera.ogg',
-        duration: 3000, // 50 minutes
-        author: 'Dr. Robert Miller',
-        publishDate: '2024-01-08T00:00:00.000Z',
-        thumbnailUrl: 'https://via.placeholder.com/300x200/D2691E/FFFFFF?text=WWII',
-        metadata: {
-          bitrate: 128,
-          format: 'mp3',
-          size: 48000000
-        }
-      },
-      // Arts & Culture topics
-      {
-        id: 'art-1',
-        title: 'Renaissance Masters',
-        description: 'The lives and works of Leonardo da Vinci, Michelangelo, and Raphael.',
-        categoryId: '4',
+        id: 'topic6',
+        title: 'Love and Relationships',
+        description: 'Stories about love, relationships, and emotional experiences.',
+        categoryId: 'cat4',
         audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3',
         duration: 2250, // 37.5 minutes
-        author: 'Dr. Isabella Romano',
+        author: 'Relationship Expert',
         publishDate: '2024-01-14T00:00:00.000Z',
-        thumbnailUrl: 'https://via.placeholder.com/300x200/9370DB/FFFFFF?text=Renaissance',
+        thumbnailUrl: 'https://via.placeholder.com/300x200/FFE6F0/BE185D?text=Love',
         metadata: {
           bitrate: 128,
           format: 'mp3',
           size: 36000000
         }
       },
-      // Business topics
+      // Mga Plano at Pagkakataon topics
       {
-        id: 'biz-1',
-        title: 'Startup Success Stories',
-        description: 'How today\'s tech giants started from humble beginnings.',
-        categoryId: '5',
+        id: 'topic7',
+        title: 'Future Plans and Dreams',
+        description: 'Stories about dreams, future plans, and opportunities.',
+        categoryId: 'cat5',
         audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-assets/Epoq-Lepidoptera.ogg',
         duration: 1800, // 30 minutes
-        author: 'Jennifer Lee',
+        author: 'Life Coach',
         publishDate: '2024-01-16T00:00:00.000Z',
-        thumbnailUrl: 'https://via.placeholder.com/300x200/FF6347/FFFFFF?text=Startups',
+        thumbnailUrl: 'https://via.placeholder.com/300x200/F0E6FF/6B21A8?text=Dreams',
         metadata: {
           bitrate: 128,
           format: 'mp3',
           size: 28800000
         }
       },
+      // Libangan at Kasiyahan topics
       {
-        id: 'biz-2',
-        title: 'Leadership in the Digital Age',
-        description: 'Modern leadership strategies for the digital transformation era.',
-        categoryId: '5',
-        audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3',
-        duration: 2100, // 35 minutes
-        author: 'David Park',
-        publishDate: '2024-01-11T00:00:00.000Z',
-        thumbnailUrl: 'https://via.placeholder.com/300x200/FF6347/FFFFFF?text=Leadership',
-        metadata: {
-          bitrate: 128,
-          format: 'mp3',
-          size: 33600000
-        }
-      },
-      // Health & Wellness topics
-      {
-        id: 'health-1',
-        title: 'Mindfulness and Mental Health',
-        description: 'Practical techniques for managing stress and improving mental well-being.',
-        categoryId: '6',
+        id: 'topic8',
+        title: 'Entertainment Stories',
+        description: 'Fun and entertaining stories for enjoyment.',
+        categoryId: 'cat6',
         audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-assets/Epoq-Lepidoptera.ogg',
         duration: 1500, // 25 minutes
-        author: 'Dr. Lisa Chang',
+        author: 'Entertainer',
         publishDate: '2024-01-19T00:00:00.000Z',
-        thumbnailUrl: 'https://via.placeholder.com/300x200/32CD32/FFFFFF?text=Mindfulness',
+        thumbnailUrl: 'https://via.placeholder.com/300x200/FFEB3B/8B4513?text=Fun',
         metadata: {
           bitrate: 128,
           format: 'mp3',
           size: 24000000
         }
       },
+      // Mga Alaala at Nostalgia topics
       {
-        id: 'health-2',
-        title: 'Nutrition Science Simplified',
-        description: 'Evidence-based nutrition advice for optimal health.',
-        categoryId: '6',
+        id: 'topic9',
+        title: 'Childhood Memories',
+        description: 'Nostalgic stories that bring back memories.',
+        categoryId: 'cat7',
         audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3',
         duration: 1800, // 30 minutes
-        author: 'Dr. Mark Johnson',
+        author: 'Storyteller',
         publishDate: '2024-01-13T00:00:00.000Z',
-        thumbnailUrl: 'https://via.placeholder.com/300x200/32CD32/FFFFFF?text=Nutrition',
+        thumbnailUrl: 'https://via.placeholder.com/300x200/E8E8E8/424242?text=Memories',
         metadata: {
           bitrate: 128,
           format: 'mp3',

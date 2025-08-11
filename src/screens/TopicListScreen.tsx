@@ -47,7 +47,7 @@ const TopicListScreen: React.FC<TopicListScreenProps> = ({ route, navigation }) 
       id: '1',
       title: 'Mga Balitang Pang-ekonomiya ngayong Linggo',
       duration: 180, // 3 minutes
-      audioUrl: 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3',
+      audioUrl: 'https://raw.githubusercontent.com/billee/audiotopicsapp/main/android/app/src/main/assets/audio/ElevenLabs_Sarah.mp3',
     },
     {
       id: '2',

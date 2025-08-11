@@ -46,19 +46,19 @@ interface AudioPlayerScreenProps {
 const AudioPlayerScreen: React.FC<AudioPlayerScreenProps> = ({ route, navigation }) => {
   // Mock data for development - in real app this would come from route params
   const mockTopic: AudioTopic = {
-    id: '1',
-    title: 'Sample Science Topic',
-    description: 'This is a sample science topic for testing the player interface.',
-    categoryId: '2', // Use science category ID for testing
-    audioUrl: 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3', // Working sample audio URL
-    duration: 300,
-    author: 'Sample Author',
+    id: 'topic1',
+    title: 'Mga Balitang Pang-ekonomiya ngayong Linggo',
+    description: 'Weekly economic news and updates affecting families and personal finances.',
+    categoryId: 'cat1',
+    audioUrl: 'https://raw.githubusercontent.com/billee/audiotopicsapp/main/android/app/src/main/assets/audio/ElevenLabs_Sarah.mp3',
+    duration: 180,
+    author: 'Sarah',
     publishDate: new Date().toISOString(), // Convert to ISO string for serialization
-    thumbnailUrl: 'https://picsum.photos/400/400',
+    thumbnailUrl: 'https://via.placeholder.com/300x200/E8F5E8/2D5016?text=Economic+News',
     metadata: {
       bitrate: 128,
       format: 'mp3',
-      size: 5000000,
+      size: 2880000,
     },
   };
 

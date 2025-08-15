@@ -157,23 +157,6 @@ class TopicService {
           format: 'mp3',
           size: 24000000
         }
-      },
-      // Mga Alaala at Nostalgia topics
-      {
-        id: 'topic9',
-        title: 'Childhood Memories',
-        description: 'Nostalgic stories that bring back memories.',
-        categoryId: 'cat7',
-        audioUrl: 'https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3',
-        duration: 1800, // 30 minutes
-        author: 'Storyteller',
-        publishDate: '2024-01-13T00:00:00.000Z',
-        thumbnailUrl: 'https://via.placeholder.com/300x200/E8E8E8/424242?text=Memories',
-        metadata: {
-          bitrate: 128,
-          format: 'mp3',
-          size: 28800000
-        }
       }
     ];
   }

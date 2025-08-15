@@ -1,5 +1,5 @@
 /**
- * TopicListScreen - Displays topics for a selected category with progress indicators
+ * TopicListScreen - Displays topics for a selected category with inline audio controls
  */
 
 import React, { useEffect, useCallback } from 'react';
@@ -10,19 +10,18 @@ import {
   StyleSheet,
   SafeAreaView,
   StatusBar,
+  ScrollView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useTopics } from '../hooks/useTopics';
-import { useAudioPlayer } from '../hooks/useAudioPlayer';
 import { useAppSelector } from '../store/hooks';
-import { selectCurrentTopic } from '../store/selectors/audioSelectors';
 import { selectCategoryById } from '../store/selectors/categoriesSelectors';
-import { TopicList } from '../components/topic';
+import { TopicRow } from '../components/topic';
+import { InlineAudioProvider } from '../contexts/InlineAudioContext';
 import { AudioTopic } from '../types';
-import { useResponsiveStyles } from '../hooks/useOrientation';
 import { BackgroundImage } from '../components/common';
 import { useBackgroundImage } from '../hooks/useBackgroundImage';
-import { getOptimalOverlayOpacity, getCategoryColor, mapCategoryIdToName } from '../utils/backgroundImages';
+import { getOptimalOverlayOpacity, getCategoryColor } from '../utils/backgroundImages';
 
 // Props interface for simplified navigation
 interface TopicListScreenProps {
@@ -41,25 +40,46 @@ interface TopicListScreenProps {
 const TopicListScreen: React.FC<TopicListScreenProps> = ({ route, navigation }) => {
   const { categoryId } = route.params;
 
-  // Sample Filipino audio topics for testing
-  const sampleTopics = [
+  // Sample Filipino audio topics for testing - converted to AudioTopic format
+  const sampleTopics: AudioTopic[] = [
     {
       id: '1',
       title: 'Mga Balitang Pang-ekonomiya ngayong Linggo',
+      description: 'Filipino audio content: Economic news for this week',
       duration: 180, // 3 minutes
       audioUrl: 'https://raw.githubusercontent.com/billee/audiotopicsapp/main/android/app/src/main/assets/audio/ElevenLabs_Sarah.mp3',
+      categoryId: categoryId,
+      metadata: {
+        bitrate: 128,
+        format: 'mp3',
+        size: 2048000,
+      },
     },
     {
       id: '2',
       title: 'Usapang Politika: Mga Nangyayari sa Senado',
+      description: 'Filipino audio content: Political discussions about Senate activities',
       duration: 240, // 4 minutes
       audioUrl: 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3',
+      categoryId: categoryId,
+      metadata: {
+        bitrate: 128,
+        format: 'mp3',
+        size: 2560000,
+      },
     },
     {
       id: '3',
       title: 'Mga Pagbabago sa Lokal na Pamahalaan',
+      description: 'Filipino audio content: Changes in local government',
       duration: 300, // 5 minutes
       audioUrl: 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3',
+      categoryId: categoryId,
+      metadata: {
+        bitrate: 128,
+        format: 'mp3',
+        size: 3200000,
+      },
     },
   ];
 
@@ -73,14 +93,7 @@ const TopicListScreen: React.FC<TopicListScreenProps> = ({ route, navigation }) 
     refreshTopics,
   } = useTopics(categoryId);
 
-  // Audio player hook
-  const { loadTopic, play } = useAudioPlayer();
-
-  // Responsive design
-  const { isLandscape, isTablet } = useResponsiveStyles();
-
   // Selectors
-  const currentTopic = useAppSelector(selectCurrentTopic);
   const category = useAppSelector(state => selectCategoryById(state, categoryId));
 
   // Load topics when component mounts or categoryId changes
@@ -90,53 +103,10 @@ const TopicListScreen: React.FC<TopicListScreenProps> = ({ route, navigation }) 
     }
   }, [categoryId, loadTopicsForCategory]);
 
-  // Set navigation title (disabled for simplified navigation)
-  // useEffect(() => {
-  //   if (category) {
-  //     navigation.setOptions({
-  //       title: category.name,
-  //       headerStyle: {
-  //         backgroundColor: category.color || '#007AFF',
-  //       },
-  //       headerTintColor: '#FFFFFF',
-  //       headerTitleStyle: {
-  //         fontWeight: '600',
-  //       },
-  //     });
-  //   }
-  // }, [navigation, category]);
-
-  // Handle topic selection
-  const handleTopicPress = useCallback(
-    (topic: AudioTopic) => {
-      navigation.navigate('AudioPlayer', { topic });
-    },
-    [navigation]
-  );
-
   // Handle refresh
   const handleRefresh = useCallback(() => {
     refreshTopics();
   }, [refreshTopics]);
-
-  // Handle sample topic play
-  const handleSampleTopicPlay = useCallback((sampleTopic: any) => {
-    // Convert sample topic to AudioTopic format
-    const audioTopic: AudioTopic = {
-      id: sampleTopic.id,
-      title: sampleTopic.title,
-      description: `Filipino audio content: ${sampleTopic.title}`,
-      duration: sampleTopic.duration,
-      audioUrl: sampleTopic.audioUrl,
-      categoryId: categoryId,
-      tags: ['filipino', 'news'],
-      difficulty: 'beginner',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    handleTopicPress(audioTopic);
-  }, [handleTopicPress, categoryId]);
 
   // Background image hook
   const { getBackgroundImage } = useBackgroundImage();
@@ -170,59 +140,59 @@ const TopicListScreen: React.FC<TopicListScreenProps> = ({ route, navigation }) 
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar
-        barStyle="light-content"
-        backgroundColor={category?.color || '#007AFF'}
-      />
+    <InlineAudioProvider>
+      <SafeAreaView style={styles.container}>
+        <StatusBar
+          barStyle="light-content"
+          backgroundColor={category?.color || '#007AFF'}
+        />
 
-      {/* Header with back button */}
-      <View style={[styles.header, { backgroundColor: category?.color || '#007AFF' }]}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Icon name="arrow-back" size={26} color="#FFFFFF" style={styles.backIcon} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>
-          {category?.name || route.params.categoryName || 'Topics'}
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
-
-      <BackgroundImage
-        source={backgroundImageUrl}
-        overlay={true}
-        overlayOpacity={categoryId === '2' ? 0.3 : overlayOpacity} // Lighter overlay for solid color
-        overlayColors={categoryId === '2' ?
-          ['rgba(6,95,70,0.1)', 'rgba(6,95,70,0.3)'] : // Science-themed gradient
-          ['rgba(0,0,0,0.2)', 'rgba(0,0,0,0.6)']
-        }
-        fallbackColor={fallbackColor}
-        showLoadingState={false}
-        showErrorState={false}
-        enableResponsiveImages={false}
-        resizeMode="stretch"
-        testID="topic-list-background"
-      >
-        <View style={styles.topicsContainer}>
-          {sampleTopics.map((topic, index) => (
-            <View key={topic.id} style={styles.topicRow}>
-              <View style={styles.topicInfo}>
-                <Text style={styles.topicTitle}>{topic.title}</Text>
-                <Text style={styles.topicDuration}>{Math.floor(topic.duration / 60)}:{(topic.duration % 60).toString().padStart(2, '0')}</Text>
-              </View>
-              <TouchableOpacity
-                style={styles.playButton}
-                onPress={() => handleSampleTopicPlay(topic)}
-              >
-                <Icon name="play-arrow" size={32} color="#FFFFFF" />
-              </TouchableOpacity>
-            </View>
-          ))}
+        {/* Header with back button */}
+        <View style={[styles.header, { backgroundColor: category?.color || '#007AFF' }]}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Icon name="arrow-back" size={26} color="#FFFFFF" style={styles.backIcon} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>
+            {category?.name || route.params.categoryName || 'Topics'}
+          </Text>
+          <View style={styles.headerSpacer} />
         </View>
-      </BackgroundImage>
-    </SafeAreaView>
+
+        <BackgroundImage
+          source={backgroundImageUrl}
+          overlay={true}
+          overlayOpacity={categoryId === '2' ? 0.3 : overlayOpacity} // Lighter overlay for solid color
+          overlayColors={categoryId === '2' ?
+            ['rgba(6,95,70,0.1)', 'rgba(6,95,70,0.3)'] : // Science-themed gradient
+            ['rgba(0,0,0,0.2)', 'rgba(0,0,0,0.6)']
+          }
+          fallbackColor={fallbackColor}
+          showLoadingState={false}
+          showErrorState={false}
+          enableResponsiveImages={false}
+          resizeMode="stretch"
+          testID="topic-list-background"
+        >
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={true}
+            testID="topic-list-scroll"
+          >
+            {sampleTopics.map((topic) => (
+              <TopicRow
+                key={topic.id}
+                topic={topic}
+                testID={`topic-row-${topic.id}`}
+              />
+            ))}
+          </ScrollView>
+        </BackgroundImage>
+      </SafeAreaView>
+    </InlineAudioProvider>
   );
 };
 
@@ -272,58 +242,12 @@ const styles = StyleSheet.create({
   headerSpacer: {
     width: 40,
   },
-  topicsContainer: {
+  scrollView: {
     flex: 1,
-    paddingHorizontal: 16,
+  },
+  scrollContent: {
     paddingTop: 20,
-  },
-  topicRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  topicInfo: {
-    flex: 1,
-    marginRight: 12,
-  },
-  topicTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1F2937',
-    marginBottom: 4,
-    lineHeight: 22,
-  },
-  topicDuration: {
-    fontSize: 14,
-    color: '#6B7280',
-    fontWeight: '500',
-  },
-  playButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#10B981',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
+    paddingBottom: 20,
   },
 });
 

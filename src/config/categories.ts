@@ -112,18 +112,6 @@ export const FILIPINO_CATEGORIES: FilipinoCategory[] = [
         textColor: '#8B4513', // Much darker brown for better contrast
         backgroundImage: 'entertainment.png',
         layoutPosition: { row: 1, column: 2 }
-    },
-    {
-        id: 'cat7',
-        numericId: 7,
-        name: 'Mga Alaala at Nostalgia',
-        englishName: 'Shared Nostalgia',
-        description: 'Mga alaala, nostalgia, at mga kwentong nagdudulot ng pag-alala',
-        englishDescription: 'Memories, nostalgia, and stories that bring back memories',
-        backgroundColor: '#E8E8E8', // Soft gray
-        textColor: '#424242',
-        backgroundImage: 'nostalgia.png',
-        layoutPosition: { row: 2, column: 0, span: 3 } // Full width bottom row
     }
 ];
 
